@@ -551,6 +551,394 @@
         animation: flow 3.2s infinite ease-in-out;
       }
 
+      .organ-viz.has-specific::before,
+      .organ-viz.has-specific::after {
+        display: none;
+      }
+
+      .viz-title {
+        position: absolute;
+        left: 16px;
+        top: 14px;
+        z-index: 4;
+        padding: 8px 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.32);
+        color: rgba(255, 255, 255, 0.74);
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      .viz-note {
+        position: absolute;
+        right: 14px;
+        bottom: 14px;
+        z-index: 4;
+        max-width: 170px;
+        padding: 9px 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.34);
+        color: rgba(255, 255, 255, 0.62);
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      .viz-bg {
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(circle at 35% 28%, currentColor, transparent 24%),
+          radial-gradient(circle at 70% 72%, rgba(72, 244, 255, 0.14), transparent 26%);
+        opacity: 0.14;
+      }
+
+      .mouth-jaw {
+        position: absolute;
+        left: 50%;
+        width: 210px;
+        height: 54px;
+        transform: translateX(-50%);
+        border: 2px solid rgba(255, 255, 255, 0.22);
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .mouth-jaw.top {
+        top: 78px;
+        border-radius: 72px 72px 18px 18px;
+        animation: jawTop 2.4s infinite ease-in-out;
+      }
+
+      .mouth-jaw.bottom {
+        bottom: 78px;
+        border-radius: 18px 18px 72px 72px;
+        animation: jawBottom 2.4s infinite ease-in-out;
+      }
+
+      .tooth-row {
+        position: absolute;
+        left: 22px;
+        right: 22px;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .mouth-jaw.top .tooth-row {
+        bottom: -2px;
+      }
+
+      .mouth-jaw.bottom .tooth-row {
+        top: -2px;
+      }
+
+      .tooth {
+        width: 18px;
+        height: 20px;
+        border-radius: 4px 4px 9px 9px;
+        background: rgba(255, 255, 255, 0.84);
+      }
+
+      .tongue {
+        position: absolute;
+        left: 50%;
+        bottom: 96px;
+        width: 138px;
+        height: 38px;
+        transform: translateX(-50%);
+        border-radius: 999px 999px 36px 36px;
+        background: rgba(255, 116, 116, 0.42);
+        animation: tongueWave 2.4s infinite ease-in-out;
+      }
+
+      .bolus {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 38px;
+        height: 30px;
+        transform: translate(-50%, -50%);
+        border-radius: 48% 52% 44% 56%;
+        background: var(--lipid);
+        box-shadow: 0 0 28px rgba(255, 209, 92, 0.45);
+        animation: bolusMash 2.4s infinite ease-in-out;
+      }
+
+      .saliva-drop {
+        position: absolute;
+        top: 70px;
+        width: 7px;
+        height: 16px;
+        border-radius: 999px;
+        background: var(--cyan);
+        box-shadow: 0 0 16px rgba(72, 244, 255, 0.5);
+        animation: salivaFall 1.9s infinite ease-in;
+      }
+
+      .throat-tube,
+      .esophagus-tube,
+      .rectum-tube {
+        position: absolute;
+        left: 50%;
+        top: 52px;
+        width: 78px;
+        height: 210px;
+        transform: translateX(-50%);
+        border: 2px solid rgba(255, 255, 255, 0.18);
+        border-radius: 999px;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.04), currentColor, rgba(255, 255, 255, 0.04));
+        opacity: 0.72;
+      }
+
+      .epiglottis {
+        position: absolute;
+        left: calc(50% + 24px);
+        top: 96px;
+        width: 18px;
+        height: 76px;
+        transform-origin: top center;
+        border-radius: 999px;
+        background: rgba(255, 209, 92, 0.68);
+        animation: epiglottisClose 2.6s infinite ease-in-out;
+      }
+
+      .falling-bolus {
+        position: absolute;
+        left: 50%;
+        top: 76px;
+        width: 24px;
+        height: 24px;
+        transform: translateX(-50%);
+        border-radius: 50%;
+        background: var(--lipid);
+        box-shadow: 0 0 20px rgba(255, 209, 92, 0.5);
+        animation: bolusDown 2.6s infinite ease-in-out;
+      }
+
+      .peristaltic-ring {
+        position: absolute;
+        left: 50%;
+        width: 94px;
+        height: 18px;
+        transform: translateX(-50%);
+        border: 2px solid currentColor;
+        border-radius: 999px;
+        box-shadow: 0 0 18px currentColor;
+        animation: ringMove 2.8s infinite ease-in-out;
+      }
+
+      .stomach-shape {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 178px;
+        height: 178px;
+        transform: translate(-50%, -50%) rotate(-18deg);
+        border: 2px solid var(--protein);
+        border-radius: 62% 38% 58% 42%;
+        background: radial-gradient(circle at 42% 44%, rgba(255, 116, 116, 0.28), rgba(255, 116, 116, 0.07));
+        box-shadow: 0 0 46px rgba(255, 116, 116, 0.3);
+        animation: stomachChurn 2.8s infinite ease-in-out;
+      }
+
+      .acid-wave {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 130px;
+        height: 38px;
+        transform: translate(-50%, -50%) rotate(-18deg);
+        border-radius: 999px;
+        background: rgba(215, 255, 91, 0.35);
+        filter: blur(5px);
+        animation: acidSlosh 1.9s infinite ease-in-out;
+      }
+
+      .retro-arrow {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        color: var(--acid);
+        font-size: 34px;
+        animation: retroPulse 1.8s infinite ease-in-out;
+      }
+
+      .coil {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 214px;
+        height: 168px;
+        transform: translate(-50%, -50%);
+        border: 12px solid rgba(255, 209, 92, 0.26);
+        border-left-color: rgba(255, 209, 92, 0.62);
+        border-right-color: rgba(101, 245, 139, 0.42);
+        border-radius: 38% 62% 44% 56%;
+        box-shadow: 0 0 34px rgba(255, 209, 92, 0.22);
+        animation: segmentMix 3s infinite ease-in-out;
+      }
+
+      .villi-strip {
+        position: absolute;
+        left: 52px;
+        right: 52px;
+        bottom: 58px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+      }
+
+      .tiny-villus {
+        width: 10px;
+        height: 42px;
+        border-radius: 999px 999px 0 0;
+        background: rgba(101, 245, 139, 0.44);
+        box-shadow: 0 0 16px rgba(101, 245, 139, 0.26);
+        animation: villusAbsorb 2.2s infinite ease-in-out;
+      }
+
+      .nutrient-dot {
+        position: absolute;
+        bottom: 118px;
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--acid);
+        box-shadow: 0 0 14px rgba(215, 255, 91, 0.6);
+        animation: nutrientEnter 2.2s infinite ease-in-out;
+      }
+
+      .pancreas-body {
+        position: absolute;
+        left: 50%;
+        top: 126px;
+        width: 216px;
+        height: 56px;
+        transform: translateX(-50%) rotate(-8deg);
+        border: 2px solid var(--bile);
+        border-radius: 999px 36px 36px 999px;
+        background: rgba(101, 245, 139, 0.18);
+        box-shadow: 0 0 30px rgba(101, 245, 139, 0.28);
+      }
+
+      .duct {
+        position: absolute;
+        left: 78px;
+        top: 172px;
+        width: 170px;
+        height: 6px;
+        transform: rotate(12deg);
+        border-radius: 999px;
+        background: rgba(72, 244, 255, 0.52);
+        box-shadow: 0 0 18px rgba(72, 244, 255, 0.42);
+      }
+
+      .enzyme-pulse {
+        position: absolute;
+        left: 96px;
+        top: 168px;
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        background: var(--cyan);
+        animation: enzymeFlow 2s infinite linear;
+      }
+
+      .liver-shape {
+        position: absolute;
+        left: 46%;
+        top: 110px;
+        width: 220px;
+        height: 126px;
+        transform: translateX(-50%);
+        border: 2px solid var(--purple);
+        border-radius: 58% 42% 44% 56%;
+        background: rgba(178, 140, 255, 0.18);
+        box-shadow: 0 0 34px rgba(178, 140, 255, 0.26);
+      }
+
+      .gallbladder-sac {
+        position: absolute;
+        right: 76px;
+        top: 168px;
+        width: 42px;
+        height: 62px;
+        border: 2px solid var(--bile);
+        border-radius: 50% 50% 60% 60%;
+        background: rgba(101, 245, 139, 0.22);
+        animation: bileSqueeze 2.6s infinite ease-in-out;
+      }
+
+      .bile-stream {
+        position: absolute;
+        right: 94px;
+        top: 224px;
+        width: 130px;
+        height: 6px;
+        transform: rotate(28deg);
+        border-radius: 999px;
+        background: var(--bile);
+        box-shadow: 0 0 18px rgba(101, 245, 139, 0.48);
+        animation: streamPulse 1.6s infinite ease-in-out;
+      }
+
+      .colon-frame {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 220px;
+        height: 190px;
+        transform: translate(-50%, -50%);
+        border: 18px solid rgba(255, 159, 110, 0.34);
+        border-bottom-width: 22px;
+        border-radius: 42px;
+        box-shadow: 0 0 30px rgba(255, 159, 110, 0.22);
+      }
+
+      .haustra {
+        position: absolute;
+        width: 34px;
+        height: 26px;
+        border-radius: 50%;
+        background: rgba(255, 159, 110, 0.36);
+        animation: haustraPulse 2.4s infinite ease-in-out;
+      }
+
+      .water-dot {
+        position: absolute;
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--cyan);
+        box-shadow: 0 0 14px rgba(72, 244, 255, 0.58);
+        animation: waterAbsorb 2.5s infinite ease-in-out;
+      }
+
+      .rectal-store {
+        position: absolute;
+        left: 50%;
+        top: 84px;
+        width: 88px;
+        height: 150px;
+        transform: translateX(-50%);
+        border: 2px solid rgba(255, 206, 138, 0.72);
+        border-radius: 42px 42px 24px 24px;
+        background: rgba(255, 206, 138, 0.12);
+        box-shadow: 0 0 28px rgba(255, 206, 138, 0.24);
+      }
+
+      .stool {
+        position: absolute;
+        left: 50%;
+        top: 118px;
+        width: 42px;
+        height: 42px;
+        transform: translateX(-50%);
+        border-radius: 50%;
+        background: rgba(255, 159, 110, 0.72);
+        animation: stoolExit 3s infinite ease-in-out;
+      }
+
       .module {
         margin-bottom: 14px;
         padding: 20px;
@@ -717,6 +1105,115 @@
         50% {
           transform: translateY(-8px);
         }
+      }
+
+      @keyframes jawTop {
+        0%, 100% { transform: translateX(-50%) translateY(0); }
+        50% { transform: translateX(-50%) translateY(12px); }
+      }
+
+      @keyframes jawBottom {
+        0%, 100% { transform: translateX(-50%) translateY(0); }
+        50% { transform: translateX(-50%) translateY(-12px); }
+      }
+
+      @keyframes tongueWave {
+        0%, 100% { transform: translateX(-50%) scaleX(0.96); }
+        50% { transform: translateX(-50%) scaleX(1.08) translateY(-4px); }
+      }
+
+      @keyframes bolusMash {
+        0%, 100% { transform: translate(-50%, -50%) scale(1, 1); }
+        50% { transform: translate(-50%, -50%) scale(1.25, 0.72); }
+      }
+
+      @keyframes salivaFall {
+        0% { opacity: 0; transform: translateY(0); }
+        20% { opacity: 1; }
+        100% { opacity: 0; transform: translateY(110px); }
+      }
+
+      @keyframes epiglottisClose {
+        0%, 100% { transform: rotate(-6deg); }
+        42%, 58% { transform: rotate(-48deg); }
+      }
+
+      @keyframes bolusDown {
+        0% { opacity: 0; transform: translateX(-50%) translateY(0) scale(0.7); }
+        18% { opacity: 1; }
+        74% { opacity: 1; transform: translateX(-50%) translateY(130px) scale(1); }
+        100% { opacity: 0; transform: translateX(-50%) translateY(170px) scale(0.75); }
+      }
+
+      @keyframes ringMove {
+        0% { top: 60px; opacity: 0; transform: translateX(-50%) scaleX(1.2); }
+        22% { opacity: 1; }
+        55% { transform: translateX(-50%) scaleX(0.62); }
+        100% { top: 226px; opacity: 0; transform: translateX(-50%) scaleX(1.1); }
+      }
+
+      @keyframes stomachChurn {
+        0%, 100% { transform: translate(-50%, -50%) rotate(-18deg) scale(1); }
+        50% { transform: translate(-50%, -50%) rotate(-10deg) scale(1.06, 0.94); }
+      }
+
+      @keyframes acidSlosh {
+        0%, 100% { transform: translate(-56%, -50%) rotate(-18deg) scaleX(0.9); }
+        50% { transform: translate(-42%, -44%) rotate(-8deg) scaleX(1.18); }
+      }
+
+      @keyframes retroPulse {
+        0%, 100% { opacity: 0.25; transform: translate(-32px, -10px) rotate(180deg) scale(0.82); }
+        50% { opacity: 1; transform: translate(-76px, 10px) rotate(180deg) scale(1.1); }
+      }
+
+      @keyframes segmentMix {
+        0%, 100% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+        50% { transform: translate(-50%, -50%) rotate(8deg) scale(0.96, 1.08); }
+      }
+
+      @keyframes villusAbsorb {
+        0%, 100% { transform: translateY(0) scaleY(1); opacity: 0.52; }
+        50% { transform: translateY(-8px) scaleY(1.14); opacity: 0.92; }
+      }
+
+      @keyframes nutrientEnter {
+        0% { opacity: 0; transform: translateY(0); }
+        20% { opacity: 1; }
+        100% { opacity: 0; transform: translateY(76px); }
+      }
+
+      @keyframes enzymeFlow {
+        0% { opacity: 0; transform: translate(0, 0) scale(0.8); }
+        15% { opacity: 1; }
+        100% { opacity: 0; transform: translate(146px, 30px) scale(1.1); }
+      }
+
+      @keyframes bileSqueeze {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(0.82, 1.12); }
+      }
+
+      @keyframes streamPulse {
+        0%, 100% { opacity: 0.36; transform: rotate(28deg) scaleX(0.66); }
+        50% { opacity: 1; transform: rotate(28deg) scaleX(1.08); }
+      }
+
+      @keyframes haustraPulse {
+        0%, 100% { transform: scale(0.86); opacity: 0.42; }
+        50% { transform: scale(1.16); opacity: 0.9; }
+      }
+
+      @keyframes waterAbsorb {
+        0% { opacity: 0; transform: translate(0, 0); }
+        20% { opacity: 1; }
+        100% { opacity: 0; transform: translate(-44px, -50px); }
+      }
+
+      @keyframes stoolExit {
+        0%, 45% { transform: translateX(-50%) translateY(0); opacity: 1; }
+        78% { transform: translateX(-50%) translateY(82px); opacity: 1; }
+        100% { transform: translateX(-50%) translateY(108px); opacity: 0; }
       }
 
       @media (max-width: 900px) {
@@ -1455,6 +1952,105 @@
           .join("");
       }
 
+      function organVisualMarkup(id) {
+        const toothRow = '<span class="tooth"></span><span class="tooth"></span><span class="tooth"></span><span class="tooth"></span><span class="tooth"></span><span class="tooth"></span>';
+        const villi = Array.from({ length: 12 }, (_, i) => `<span class="tiny-villus" style="animation-delay:${i * 0.08}s"></span>`).join("");
+        const nutrients = Array.from({ length: 8 }, (_, i) => `<span class="nutrient-dot" style="left:${72 + i * 24}px;animation-delay:${i * 0.16}s"></span>`).join("");
+        const enzymes = Array.from({ length: 5 }, (_, i) => `<span class="enzyme-pulse" style="animation-delay:${i * 0.32}s"></span>`).join("");
+        const haustra = [
+          [78, 72],
+          [174, 74],
+          [74, 150],
+          [178, 158],
+          [126, 218]
+        ]
+          .map(([x, y], i) => `<span class="haustra" style="left:${x}px;top:${y}px;animation-delay:${i * 0.18}s"></span>`)
+          .join("");
+        const water = Array.from({ length: 7 }, (_, i) => `<span class="water-dot" style="left:${106 + (i % 3) * 42}px;top:${112 + Math.floor(i / 3) * 42}px;animation-delay:${i * 0.22}s"></span>`).join("");
+
+        const visuals = {
+          mouth: `
+            <div class="viz-bg"></div>
+            <div class="viz-title">Mastication + saliva<br><span class="zh">咀嚼 + 唾液</span></div>
+            <div class="mouth-jaw top"><div class="tooth-row">${toothRow}</div></div>
+            <div class="mouth-jaw bottom"><div class="tooth-row">${toothRow}</div></div>
+            <div class="tongue"></div>
+            <div class="bolus"></div>
+            <span class="saliva-drop" style="left:35%;animation-delay:0s"></span>
+            <span class="saliva-drop" style="left:48%;animation-delay:.42s"></span>
+            <span class="saliva-drop" style="left:61%;animation-delay:.84s"></span>
+            <div class="viz-note">Bolus forms as food is broken and lubricated.<br><span class="zh">食物被粉碎并润滑成食团。</span></div>
+          `,
+          pharynx: `
+            <div class="viz-bg"></div>
+            <div class="viz-title">Swallowing reflex<br><span class="zh">吞咽反射</span></div>
+            <div class="throat-tube"></div>
+            <div class="epiglottis"></div>
+            <div class="falling-bolus"></div>
+            <div class="viz-note">Epiglottis protects the airway as bolus descends.<br><span class="zh">会厌保护气道，食团下行。</span></div>
+          `,
+          esophagus: `
+            <div class="viz-bg"></div>
+            <div class="viz-title">Peristalsis<br><span class="zh">蠕动运输</span></div>
+            <div class="esophagus-tube"></div>
+            <div class="falling-bolus" style="animation-duration:2.8s"></div>
+            <span class="peristaltic-ring" style="animation-delay:0s"></span>
+            <span class="peristaltic-ring" style="animation-delay:.5s"></span>
+            <span class="peristaltic-ring" style="animation-delay:1s"></span>
+            <div class="viz-note">Circular muscle squeezes behind the bolus.<br><span class="zh">环形肌在食团后方收缩。</span></div>
+          `,
+          stomach: `
+            <div class="viz-bg"></div>
+            <div class="viz-title">Acid + retropulsion<br><span class="zh">胃酸 + 反推</span></div>
+            <div class="stomach-shape"></div>
+            <div class="acid-wave"></div>
+            <div class="retro-arrow">➜</div>
+            <div class="viz-note">pH drops, pepsin activates, chyme is mixed backward and forward.<br><span class="zh">pH 下降，胃蛋白酶激活，食糜往返混合。</span></div>
+          `,
+          "small-intestine": `
+            <div class="viz-bg"></div>
+            <div class="viz-title">Segmentation + absorption<br><span class="zh">分节运动 + 吸收</span></div>
+            <div class="coil"></div>
+            <div class="villi-strip">${villi}</div>
+            ${nutrients}
+            <div class="viz-note">Glucose and amino acids enter blood; fats enter lacteals.<br><span class="zh">葡萄糖/氨基酸入血，脂肪入乳糜管。</span></div>
+          `,
+          pancreas: `
+            <div class="viz-bg"></div>
+            <div class="viz-title">HCO3- + enzymes<br><span class="zh">碳酸氢盐 + 胰酶</span></div>
+            <div class="pancreas-body"></div>
+            <div class="duct"></div>
+            ${enzymes}
+            <div class="viz-note">Duct cells neutralize acid; acini send digestive enzymes.<br><span class="zh">导管中和酸，腺泡释放消化酶。</span></div>
+          `,
+          "liver-gallbladder": `
+            <div class="viz-bg"></div>
+            <div class="viz-title">Bile production + release<br><span class="zh">胆汁生成 + 释放</span></div>
+            <div class="liver-shape"></div>
+            <div class="gallbladder-sac"></div>
+            <div class="bile-stream"></div>
+            <div class="viz-note">Bile has no enzymes; it emulsifies fats and forms micelles.<br><span class="zh">胆汁无酶，负责乳化脂肪和形成胶束。</span></div>
+          `,
+          colon: `
+            <div class="viz-bg"></div>
+            <div class="viz-title">Haustra + water absorption<br><span class="zh">结肠袋 + 水分吸收</span></div>
+            <div class="colon-frame"></div>
+            ${haustra}
+            ${water}
+            <div class="viz-note">Transit time determines water recovery and stool consistency.<br><span class="zh">转运时间决定水分回收和粪便性状。</span></div>
+          `,
+          rectum: `
+            <div class="viz-bg"></div>
+            <div class="viz-title">Defecation reflex<br><span class="zh">排便反射</span></div>
+            <div class="rectal-store"></div>
+            <div class="stool"></div>
+            <div class="viz-note">Rectal stretch coordinates sphincter relaxation and expulsion.<br><span class="zh">直肠扩张协调括约肌松弛与排出。</span></div>
+          `
+        };
+
+        return visuals[id] || visuals.mouth;
+      }
+
       function renderOrgans() {
         const root = document.getElementById("organ-sections");
         root.innerHTML = organs
@@ -1466,7 +2062,7 @@
                   <div class="eyebrow">0${index + 1} / Organ Module</div>
                   <h2>${organ.en}<br><span class="zh">${organ.zh}</span></h2>
                   <p class="muted">${organ.state}</p>
-                  <div class="organ-viz" style="color:${organ.color}"></div>
+                  <div class="organ-viz has-specific" style="color:${organ.color}">${organVisualMarkup(organ.id)}</div>
                   ${organ.id === "stomach" ? '<div class="glass" style="margin-top:14px;padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px"><div><span class="zh">pH</span><h3 style="color:var(--acid)">2.0</h3></div><div><span class="zh">Pepsin</span><h3 style="color:var(--protein)">Activated</h3></div></div>' : ""}
                 </aside>
                 <div>
