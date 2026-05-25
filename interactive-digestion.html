@@ -112,6 +112,26 @@
         font-weight: 700;
       }
 
+      .version-badge {
+        position: fixed;
+        right: 16px;
+        bottom: 16px;
+        z-index: 60;
+        padding: 9px 11px;
+        border: 1px solid rgba(72, 244, 255, 0.32);
+        border-radius: 8px;
+        background: rgba(3, 7, 18, 0.72);
+        color: rgba(255, 255, 255, 0.72);
+        font-size: 11px;
+        line-height: 1.35;
+        box-shadow: 0 14px 40px rgba(0, 0, 0, 0.28);
+        backdrop-filter: blur(18px);
+      }
+
+      .version-badge strong {
+        color: var(--cyan);
+      }
+
       .glass {
         border: 1px solid var(--line);
         background: var(--panel);
@@ -1256,6 +1276,11 @@
     </style>
   </head>
   <body>
+    <div class="version-badge">
+      <strong>v2</strong> organ-specific animations<br />
+      <span class="zh">器官专属动画版</span>
+    </div>
+
     <nav class="study-nav" aria-label="Digestive system learning navigation">
       <div class="nav-links">
         <a href="#core" data-nav-target="core" class="active">Overview <span class="zh">总览</span></a>
