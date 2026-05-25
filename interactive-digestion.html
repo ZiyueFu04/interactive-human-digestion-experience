@@ -1,0 +1,1660 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Interactive Human Digestion Experience</title>
+    <style>
+      :root {
+        --bg: #030712;
+        --panel: rgba(9, 14, 28, 0.64);
+        --line: rgba(255, 255, 255, 0.12);
+        --text: rgba(255, 255, 255, 0.92);
+        --muted: rgba(255, 255, 255, 0.58);
+        --soft: rgba(255, 255, 255, 0.36);
+        --cyan: #48f4ff;
+        --acid: #d7ff5b;
+        --bile: #65f58b;
+        --lipid: #ffd15c;
+        --protein: #ff7474;
+        --purple: #b28cff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at 48% -10%, rgba(72, 244, 255, 0.18), transparent 34rem),
+          radial-gradient(circle at 80% 16%, rgba(101, 245, 139, 0.1), transparent 30rem),
+          linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+          var(--bg);
+        background-size: auto, auto, 48px 48px, 48px 48px, auto;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      .section {
+        min-height: 100vh;
+        padding: 112px 20px;
+      }
+
+      .wrap {
+        width: min(1180px, 100%);
+        margin: 0 auto;
+      }
+
+      .study-nav {
+        position: fixed;
+        left: 50%;
+        top: 14px;
+        z-index: 40;
+        display: flex;
+        width: min(1120px, calc(100% - 28px));
+        transform: translateX(-50%);
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 10px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 8px;
+        background: rgba(3, 7, 18, 0.72);
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.32);
+        backdrop-filter: blur(20px);
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+
+      .nav-links::-webkit-scrollbar {
+        display: none;
+      }
+
+      .study-nav a {
+        display: inline-flex;
+        flex: 0 0 auto;
+        align-items: center;
+        min-height: 34px;
+        padding: 0 10px;
+        border-radius: 7px;
+        color: rgba(255, 255, 255, 0.62);
+        font-size: 12px;
+        text-decoration: none;
+        transition: background 160ms ease, color 160ms ease;
+      }
+
+      .study-nav a.active,
+      .study-nav a:hover {
+        color: #021018;
+        background: var(--cyan);
+      }
+
+      .current-readout {
+        flex: 0 0 auto;
+        color: var(--cyan);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .glass {
+        border: 1px solid var(--line);
+        background: var(--panel);
+        box-shadow: 0 24px 90px rgba(0, 0, 0, 0.28);
+        backdrop-filter: blur(22px);
+        border-radius: 8px;
+      }
+
+      .eyebrow {
+        color: var(--cyan);
+        font-size: 13px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      .zh {
+        color: var(--soft);
+      }
+
+      .hero {
+        position: relative;
+        display: grid;
+        align-items: center;
+        min-height: 100vh;
+        overflow: hidden;
+        padding: 64px 20px;
+      }
+
+      #particle-canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.88;
+      }
+
+      .hero::after {
+        content: "";
+        position: absolute;
+        inset: auto 0 0;
+        height: 210px;
+        background: linear-gradient(transparent, var(--bg));
+      }
+
+      .hero-content {
+        position: relative;
+        z-index: 2;
+        width: min(1060px, 100%);
+        margin: 0 auto;
+      }
+
+      h1 {
+        max-width: 920px;
+        margin: 24px 0 0;
+        font-size: clamp(52px, 9vw, 118px);
+        line-height: 0.94;
+        letter-spacing: 0;
+      }
+
+      h1 span {
+        display: block;
+        margin-top: 16px;
+        font-size: clamp(30px, 5vw, 64px);
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      h2 {
+        margin: 12px 0 0;
+        font-size: clamp(36px, 5.5vw, 72px);
+        line-height: 1.02;
+        letter-spacing: 0;
+      }
+
+      h3 {
+        margin: 0;
+        font-size: 22px;
+      }
+
+      .subtitle {
+        max-width: 680px;
+        margin-top: 28px;
+        font-size: clamp(18px, 2vw, 22px);
+        line-height: 1.6;
+        color: var(--muted);
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 40px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 46px;
+        padding: 0 18px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 8px;
+        color: white;
+        background: rgba(255, 255, 255, 0.07);
+        cursor: pointer;
+        text-decoration: none;
+        transition: transform 180ms ease, background 180ms ease;
+      }
+
+      .btn.primary {
+        border-color: transparent;
+        background: var(--cyan);
+        color: #021018;
+        box-shadow: 0 0 48px rgba(72, 244, 255, 0.2);
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      .btn.primary:hover {
+        background: #78f7ff;
+      }
+
+      .grid-two {
+        display: grid;
+        grid-template-columns: 0.9fr 1.1fr;
+        gap: 44px;
+        align-items: center;
+      }
+
+      .map-panel {
+        position: relative;
+        min-height: 680px;
+        overflow: hidden;
+      }
+
+      .digest-svg {
+        position: absolute;
+        inset: 20px;
+        width: calc(100% - 40px);
+        height: calc(100% - 40px);
+      }
+
+      .organ-node {
+        position: absolute;
+        z-index: 3;
+        width: 0;
+        height: 0;
+        transform: translate(-50%, -50%);
+        border: 0;
+        color: white;
+        background: transparent;
+        cursor: pointer;
+        text-align: left;
+      }
+
+      .dot {
+        position: absolute;
+        left: 0;
+        top: 0;
+        display: block;
+        width: 16px;
+        height: 16px;
+        transform: translate(-50%, -50%);
+        border: 1px solid rgba(255, 255, 255, 0.48);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.34);
+        transition: transform 180ms ease, background 180ms ease;
+      }
+
+      .organ-node.active .dot,
+      .organ-node:hover .dot {
+        transform: translate(-50%, -50%) scale(1.55);
+        background: white;
+        box-shadow: 0 0 28px currentColor;
+      }
+
+      .organ-label {
+        position: absolute;
+        left: 18px;
+        top: -21px;
+        display: block;
+        min-width: 134px;
+        padding: 10px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.34);
+        font-size: 12px;
+        line-height: 1.35;
+        white-space: nowrap;
+      }
+
+      .organ-node.label-left .organ-label {
+        right: 18px;
+        left: auto;
+        text-align: right;
+      }
+
+      .organ-node.label-up .organ-label {
+        top: -54px;
+      }
+
+      .timeline {
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
+        margin-top: 40px;
+      }
+
+      .timeline::before {
+        content: "";
+        position: absolute;
+        left: 20px;
+        right: 20px;
+        top: 28px;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.14);
+      }
+
+      .stage {
+        position: relative;
+        padding: 22px;
+        background: rgba(255, 255, 255, 0.035);
+      }
+
+      .stage::before {
+        content: "";
+        display: block;
+        width: 16px;
+        height: 16px;
+        margin-bottom: 28px;
+        border-radius: 50%;
+        background: var(--cyan);
+        box-shadow: 0 0 28px rgba(72, 244, 255, 0.55);
+      }
+
+      .concept-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-top: 34px;
+      }
+
+      .concept-card {
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.035);
+      }
+
+      .concept-card strong {
+        display: block;
+        margin-bottom: 10px;
+        color: white;
+        font-size: 18px;
+      }
+
+      .flow {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 16px;
+      }
+
+      .flow-step {
+        display: inline-flex;
+        align-items: center;
+        min-height: 38px;
+        padding: 8px 11px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.76);
+        font-size: 13px;
+        line-height: 1.35;
+      }
+
+      .control-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin-top: 34px;
+      }
+
+      .compare {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 16px;
+      }
+
+      .compare div {
+        padding: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.22);
+      }
+
+      .fact-list {
+        display: grid;
+        gap: 10px;
+        margin-top: 16px;
+      }
+
+      .fact {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 12px 14px;
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .fact span:last-child {
+        color: var(--cyan);
+        text-align: right;
+      }
+
+      .confuse-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+        margin-top: 34px;
+      }
+
+      .confuse-card {
+        position: relative;
+        overflow: hidden;
+        padding: 20px;
+        border-color: rgba(255, 116, 116, 0.26);
+      }
+
+      .confuse-card::before {
+        content: "!";
+        position: absolute;
+        right: 18px;
+        top: 12px;
+        color: rgba(255, 116, 116, 0.28);
+        font-size: 76px;
+        font-weight: 800;
+        line-height: 1;
+      }
+
+      .confuse-card strong {
+        position: relative;
+        display: block;
+        max-width: 88%;
+        color: white;
+        font-size: 19px;
+        line-height: 1.35;
+      }
+
+      .study-table {
+        width: 100%;
+        margin-top: 24px;
+        border-collapse: collapse;
+        overflow: hidden;
+        border-radius: 8px;
+        font-size: 14px;
+      }
+
+      .study-table th,
+      .study-table td {
+        padding: 14px 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      .study-table th {
+        color: var(--cyan);
+        background: rgba(72, 244, 255, 0.08);
+        font-weight: 700;
+      }
+
+      .study-table tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .study-table td {
+        color: rgba(255, 255, 255, 0.7);
+        background: rgba(255, 255, 255, 0.032);
+      }
+
+      .table-wrap {
+        margin-top: 28px;
+        overflow-x: auto;
+      }
+
+      .organ-section {
+        display: grid;
+        grid-template-columns: 0.78fr 1.22fr;
+        gap: 34px;
+        align-items: start;
+      }
+
+      .sticky {
+        position: sticky;
+        top: 28px;
+      }
+
+      .organ-viz {
+        position: relative;
+        height: 300px;
+        margin-top: 28px;
+        overflow: hidden;
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.34);
+      }
+
+      .organ-viz::before {
+        content: "";
+        position: absolute;
+        inset: 52px 76px;
+        border: 1px solid currentColor;
+        border-radius: 999px;
+        box-shadow: 0 0 54px currentColor;
+        animation: pulse 2.8s infinite ease-in-out;
+      }
+
+      .organ-viz::after {
+        content: "";
+        position: absolute;
+        left: -20%;
+        top: 45%;
+        width: 140%;
+        height: 54px;
+        border-radius: 999px;
+        background: currentColor;
+        filter: blur(26px);
+        opacity: 0.34;
+        animation: flow 3.2s infinite ease-in-out;
+      }
+
+      .module {
+        margin-bottom: 14px;
+        padding: 20px;
+      }
+
+      .module p {
+        line-height: 1.65;
+      }
+
+      .terms {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 16px;
+      }
+
+      .term {
+        padding: 8px 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 7px;
+        background: rgba(255, 255, 255, 0.05);
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.72);
+      }
+
+      .lab {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 22px;
+        padding: 20px;
+      }
+
+      .lab-viz {
+        position: relative;
+        min-height: 430px;
+        overflow: hidden;
+        border-radius: 8px;
+        background: radial-gradient(circle at center, rgba(255, 209, 92, 0.14), transparent 55%), rgba(0, 0, 0, 0.32);
+      }
+
+      .fat-particle {
+        position: absolute;
+        width: 42px;
+        height: 42px;
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        border-radius: 50%;
+        animation: lipid 6.4s infinite ease-in-out;
+      }
+
+      .lacteal {
+        position: absolute;
+        right: 18%;
+        bottom: 0;
+        width: 112px;
+        height: 72%;
+        border: 1px solid rgba(72, 244, 255, 0.42);
+        border-radius: 80px 80px 0 0;
+        background: rgba(72, 244, 255, 0.08);
+        animation: pulse 2.4s infinite ease-in-out;
+      }
+
+      .step {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 15px;
+        margin-bottom: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .mini-dot {
+        width: 12px;
+        height: 12px;
+        flex: 0 0 auto;
+        border-radius: 50%;
+        box-shadow: 0 0 20px currentColor;
+        background: currentColor;
+      }
+
+      .zoom-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+      }
+
+      .villi-viz {
+        position: relative;
+        height: 270px;
+        overflow: hidden;
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.34);
+      }
+
+      .villus {
+        position: absolute;
+        bottom: 0;
+        width: 7%;
+        border: 1px solid currentColor;
+        border-radius: 80px 80px 0 0;
+        background: currentColor;
+        opacity: 0.28;
+        animation: villi 2.6s infinite ease-in-out;
+      }
+
+      .network {
+        position: relative;
+        min-height: 520px;
+        overflow: hidden;
+        padding: 20px;
+      }
+
+      .network svg {
+        width: 100%;
+        height: 520px;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 0.42;
+          transform: scale(0.94);
+        }
+        50% {
+          opacity: 0.9;
+          transform: scale(1.08);
+        }
+      }
+
+      @keyframes flow {
+        0%,
+        100% {
+          transform: translateX(-8%);
+        }
+        50% {
+          transform: translateX(8%);
+        }
+      }
+
+      @keyframes lipid {
+        0% {
+          left: 10%;
+          top: 44%;
+          transform: scale(1.35);
+        }
+        50% {
+          left: 42%;
+          top: 30%;
+          transform: scale(0.82);
+        }
+        100% {
+          left: 74%;
+          top: 62%;
+          transform: scale(0.58);
+        }
+      }
+
+      @keyframes villi {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-8px);
+        }
+      }
+
+      @media (max-width: 900px) {
+        .grid-two,
+        .organ-section,
+        .lab,
+        .control-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .timeline,
+        .zoom-grid,
+        .concept-grid,
+        .compare,
+        .confuse-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .study-nav {
+          align-items: flex-start;
+          gap: 8px;
+        }
+
+        .current-readout {
+          display: none;
+        }
+
+        .study-table {
+          min-width: 760px;
+        }
+
+        .sticky {
+          position: static;
+        }
+
+        .map-panel {
+          min-height: 620px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="study-nav" aria-label="Digestive system learning navigation">
+      <div class="nav-links">
+        <a href="#core" data-nav-target="core" class="active">Overview <span class="zh">总览</span></a>
+        <a href="#control" data-nav-target="control">Control <span class="zh">调控</span></a>
+        <a href="#section-mouth" data-nav-target="section-mouth">Mouth <span class="zh">口腔</span></a>
+        <a href="#section-stomach" data-nav-target="section-stomach">Stomach <span class="zh">胃</span></a>
+        <a href="#section-small-intestine" data-nav-target="section-small-intestine">Small Intestine <span class="zh">小肠</span></a>
+        <a href="#section-liver-gallbladder" data-nav-target="section-liver-gallbladder">Liver/Bile <span class="zh">肝胆</span></a>
+        <a href="#section-colon" data-nav-target="section-colon">Colon <span class="zh">大肠</span></a>
+      </div>
+      <div class="current-readout">Current: <span id="current-section">Overview</span></div>
+    </nav>
+
+    <section class="hero" id="top">
+      <canvas id="particle-canvas" aria-hidden="true"></canvas>
+      <div class="hero-content">
+        <div class="eyebrow">Food Journey Through the Human Body</div>
+        <h1>From Food to Molecules <span>从食物到分子</span></h1>
+        <p class="subtitle">
+          An Interactive Journey Through Human Digestion
+          <br />
+          <span class="zh">人体消化系统交互式旅程</span>
+        </p>
+        <div class="actions">
+          <a class="btn primary" href="#map">Start Digestion <span>开始消化</span></a>
+          <a class="btn" href="#control">Core Control <span class="zh">核心调控</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="map">
+      <div class="wrap grid-two">
+        <div>
+          <div class="eyebrow">Human Digestive Map / 人体消化地图</div>
+          <h2>Follow the active lumen, not a slide deck. <span class="zh">沿着管腔旅行，而不是翻页。</span></h2>
+          <p class="subtitle">
+            Each organ lights up as the food state changes: bolus, chyme, nutrients and waste.
+            <br />
+            <span class="zh">每个器官都会随食物状态变化而激活：食团、食糜、营养分子与废物。</span>
+          </p>
+        </div>
+        <div class="glass map-panel" id="map-panel">
+          <svg class="digest-svg" viewBox="0 0 100 100" role="img" aria-label="Digestive tract path">
+            <defs>
+              <linearGradient id="digestiveGradient" x1="0" x2="1" y1="0" y2="1">
+                <stop stop-color="#48f4ff"></stop>
+                <stop offset="0.42" stop-color="#ff7474"></stop>
+                <stop offset="0.72" stop-color="#ffd15c"></stop>
+                <stop offset="1" stop-color="#65f58b"></stop>
+              </linearGradient>
+            </defs>
+            <path d="M50 8 C50 20 50 27 50 34 C61 42 59 53 50 58 C39 64 39 74 50 78 C62 83 58 91 50 94" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="7" stroke-linecap="round"></path>
+            <path d="M50 8 C50 20 50 27 50 34 C61 42 59 53 50 58 C39 64 39 74 50 78 C62 83 58 91 50 94" fill="none" stroke="url(#digestiveGradient)" stroke-width="3" stroke-linecap="round"></path>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="core">
+      <div class="wrap">
+        <div class="eyebrow">Core Concepts / 核心框架</div>
+        <h2>Digestion is six linked jobs, not a list of organs.</h2>
+        <p class="subtitle">
+          The PDF begins with this system logic: the GI tract breaks food into absorbable forms, moves it, secretes fluids and enzymes, absorbs nutrients, and eliminates waste.
+          <br />
+          <span class="zh">课件的起点是系统逻辑：胃肠道把食物分解为可吸收形式，推动、分泌、消化、吸收并排出废物。</span>
+        </p>
+        <div class="concept-grid">
+          <article class="glass concept-card">
+            <strong>Ingestion & Motility <span class="zh">摄入与运动</span></strong>
+            <p class="muted">Taking food in, then using smooth muscle movement to transport it.</p>
+            <p class="zh">摄入食物，并依靠平滑肌运动完成运输。</p>
+          </article>
+          <article class="glass concept-card">
+            <strong>Secretion <span class="zh">分泌</span></strong>
+            <p class="muted">Water, acid, mucus, bicarbonate, bile and enzymes enter the lumen.</p>
+            <p class="zh">水、酸、黏液、碳酸氢盐、胆汁和酶进入管腔。</p>
+          </article>
+          <article class="glass concept-card">
+            <strong>Mixing & Propulsion <span class="zh">混合与推进</span></strong>
+            <p class="muted">Churning exposes food to secretions; peristalsis moves it aborally.</p>
+            <p class="zh">搅拌让食物接触分泌物；蠕动向远端推进。</p>
+          </article>
+          <article class="glass concept-card">
+            <strong>Digestion <span class="zh">消化</span></strong>
+            <p class="muted">Mechanical and chemical breakdown converts polymers into absorbable molecules.</p>
+            <p class="zh">机械和化学分解把大分子变成可吸收小分子。</p>
+          </article>
+          <article class="glass concept-card">
+            <strong>Absorption <span class="zh">吸收</span></strong>
+            <p class="muted">Most nutrients enter blood; fats enter lymph through lacteals.</p>
+            <p class="zh">多数营养进入血液；脂肪经乳糜管进入淋巴。</p>
+          </article>
+          <article class="glass concept-card">
+            <strong>Defecation <span class="zh">排便</span></strong>
+            <p class="muted">Water recovery, storage and reflex expulsion complete the journey.</p>
+            <p class="zh">水分回收、储存和反射性排出完成旅程。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="control">
+      <div class="wrap">
+        <div class="eyebrow">Neural & Electrical Control / 神经与电活动控制</div>
+        <h2>The gut has its own control layer.</h2>
+        <p class="subtitle">
+          Motility and secretion are not random. They are coordinated by ENS plexuses, autonomic input, slow waves, spike potentials and interstitial cells of Cajal.
+          <br />
+          <span class="zh">胃肠运动和分泌不是随机发生，而由 ENS 神经丛、自主神经、慢波、动作电位和 Cajal 间质细胞协调。</span>
+        </p>
+        <div class="control-grid">
+          <article class="glass concept-card">
+            <strong>Enteric Nervous System <span class="zh">肠神经系统</span></strong>
+            <div class="compare">
+              <div>
+                <strong style="font-size:15px">Myenteric plexus</strong>
+                <p class="zh">Auerbach 神经丛</p>
+                <p class="muted">Controls frequency and strength of muscular contraction.</p>
+              </div>
+              <div>
+                <strong style="font-size:15px">Submucosal plexus</strong>
+                <p class="zh">Meissner 神经丛</p>
+                <p class="muted">Controls secretion and local blood flow.</p>
+              </div>
+            </div>
+          </article>
+          <article class="glass concept-card">
+            <strong>Autonomic Balance <span class="zh">自主神经平衡</span></strong>
+            <div class="compare">
+              <div>
+                <strong style="font-size:15px">Parasympathetic</strong>
+                <p class="zh">副交感</p>
+                <p class="muted">Increases motility and secretion; relaxes sphincters.</p>
+              </div>
+              <div>
+                <strong style="font-size:15px">Sympathetic</strong>
+                <p class="zh">交感</p>
+                <p class="muted">Decreases motility and secretion; contracts sphincters.</p>
+              </div>
+            </div>
+          </article>
+          <article class="glass concept-card">
+            <strong>Electrical Rhythm <span class="zh">电节律</span></strong>
+            <div class="fact-list">
+              <div class="fact"><span>Interstitial cells of Cajal / Cajal 间质细胞</span><span>pacemaker</span></div>
+              <div class="fact"><span>Stomach slow waves / 胃慢波</span><span>~3/min</span></div>
+              <div class="fact"><span>Duodenum slow waves / 十二指肠慢波</span><span>~12/min</span></div>
+              <div class="fact"><span>Terminal ileum / 回肠末端</span><span>~8-9/min</span></div>
+            </div>
+          </article>
+          <article class="glass concept-card">
+            <strong>Movement Types <span class="zh">运动类型</span></strong>
+            <div class="flow">
+              <span class="flow-step">Peristalsis / 蠕动：forward movement</span>
+              <span class="flow-step">Segmentation / 分节：mixing</span>
+              <span class="flow-step">MMC / 移行性运动复合波：fasting cleanup</span>
+              <span class="flow-step">Spikes / 动作电位：trigger contraction</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="atlas">
+      <div class="wrap">
+        <div class="eyebrow">High-Yield Knowledge Atlas / 高频知识速记图谱</div>
+        <h2>What students should remember first.</h2>
+        <p class="subtitle">
+          These are the course points most likely to be lost in a beautiful animation: volumes, pH, enzymes, barriers, transport routes and reflexes.
+          <br />
+          <span class="zh">这些是漂亮动画里最容易被漏掉、但学生必须先抓住的知识：分泌量、pH、酶、屏障、转运路线和反射。</span>
+        </p>
+        <div class="concept-grid">
+          <article class="glass concept-card">
+            <strong>GI Tract vs Accessory Organs <span class="zh">胃肠道与附属器官</span></strong>
+            <p class="muted">GI tract is a continuous tube from mouth to anus; accessory organs include teeth, tongue, salivary glands, pancreas, liver and gallbladder.</p>
+            <p class="zh">胃肠道是从口到肛门的连续管道；附属器官包括牙、舌、唾液腺、胰腺、肝和胆囊。</p>
+          </article>
+          <article class="glass concept-card">
+            <strong>Wall Layers <span class="zh">管壁层次</span></strong>
+            <div class="flow">
+              <span class="flow-step">Mucosa / 黏膜</span>
+              <span class="flow-step">Submucosa / 黏膜下层</span>
+              <span class="flow-step">Circular muscle / 环形肌</span>
+              <span class="flow-step">Longitudinal muscle / 纵行肌</span>
+              <span class="flow-step">Serosa / 浆膜</span>
+            </div>
+          </article>
+          <article class="glass concept-card">
+            <strong>Saliva <span class="zh">唾液</span></strong>
+            <div class="fact-list">
+              <div class="fact"><span>Water / 水</span><span>99.5%</span></div>
+              <div class="fact"><span>pH</span><span>6.35-6.85</span></div>
+              <div class="fact"><span>Daily volume / 每日分泌量</span><span>1-1.6 L</span></div>
+              <div class="fact"><span>Defense / 防御</span><span>IgA, lysozyme, lactoferrin</span></div>
+            </div>
+          </article>
+          <article class="glass concept-card">
+            <strong>Swallowing <span class="zh">吞咽</span></strong>
+            <div class="flow">
+              <span class="flow-step">Oral voluntary phase / 口腔随意期</span>
+              <span class="flow-step">Pharyngeal phase / 咽期</span>
+              <span class="flow-step">Esophageal phase / 食管期</span>
+              <span class="flow-step">Solid 4-8 s; liquids ~1 s / 固体 4-8 秒；液体约 1 秒</span>
+            </div>
+          </article>
+          <article class="glass concept-card">
+            <strong>Gastric Barrier <span class="zh">胃黏膜屏障</span></strong>
+            <div class="fact-list">
+              <div class="fact"><span>Mucus layer / 黏液层</span><span>1-3 mm</span></div>
+              <div class="fact"><span>Lumen pH / 管腔 pH</span><span>~2</span></div>
+              <div class="fact"><span>Cell surface pH / 细胞表面 pH</span><span>~7</span></div>
+              <div class="fact"><span>Key defense / 关键防御</span><span>HCO3- gradient</span></div>
+            </div>
+          </article>
+          <article class="glass concept-card">
+            <strong>Gastric Emptying <span class="zh">胃排空</span></strong>
+            <div class="flow">
+              <span class="flow-step">Storage ~1 h / 储存约 1 小时</span>
+              <span class="flow-step">Liquids faster than solids / 液体快于固体</span>
+              <span class="flow-step">Only ~3 mL chyme passes each ring / 每个蠕动环约 3 mL 食糜通过</span>
+              <span class="flow-step">Total 2-4 h / 总排空约 2-4 小时</span>
+            </div>
+          </article>
+          <article class="glass concept-card">
+            <strong>Pancreatic Juice <span class="zh">胰液</span></strong>
+            <div class="flow">
+              <span class="flow-step">HCO3- neutralizes acid / 碳酸氢盐中和酸</span>
+              <span class="flow-step">Amylase / 胰淀粉酶</span>
+              <span class="flow-step">Trypsin, chymotrypsin, elastase / 蛋白酶</span>
+              <span class="flow-step">Lipase, RNase, DNase / 脂肪酶与核酸酶</span>
+            </div>
+          </article>
+          <article class="glass concept-card">
+            <strong>Bile <span class="zh">胆汁</span></strong>
+            <div class="fact-list">
+              <div class="fact"><span>pH</span><span>7.8-8.6</span></div>
+              <div class="fact"><span>Daily volume / 每日量</span><span>800 mL-1 L</span></div>
+              <div class="fact"><span>Enzymes / 酶</span><span>none / 无</span></div>
+              <div class="fact"><span>Bile acid recycling / 胆汁酸回收</span><span>~90%</span></div>
+            </div>
+          </article>
+          <article class="glass concept-card">
+            <strong>Absorption Route <span class="zh">吸收路径</span></strong>
+            <div class="flow">
+              <span class="flow-step">Glucose → capillary / 葡萄糖 → 毛细血管</span>
+              <span class="flow-step">Amino acids → capillary / 氨基酸 → 毛细血管</span>
+              <span class="flow-step">Fatty acids → enterocyte / 脂肪酸 → 肠上皮细胞</span>
+              <span class="flow-step">Chylomicron → lacteal / 乳糜微粒 → 乳糜管</span>
+            </div>
+          </article>
+          <article class="glass concept-card">
+            <strong>Large Intestine <span class="zh">大肠</span></strong>
+            <div class="fact-list">
+              <div class="fact"><span>Mass movements / 集团运动</span><span>1-3/day</span></div>
+              <div class="fact"><span>Main job / 主要功能</span><span>water + electrolytes</span></div>
+              <div class="fact"><span>Bacterial vitamins / 细菌合成</span><span>K, B vitamins</span></div>
+              <div class="fact"><span>Feces water / 粪便含水</span><span>~75%</span></div>
+            </div>
+          </article>
+          <article class="glass concept-card">
+            <strong>Defecation <span class="zh">排便</span></strong>
+            <div class="flow">
+              <span class="flow-step">Rectal stretch / 直肠扩张</span>
+              <span class="flow-step">Internal sphincter relaxes / 内括约肌松弛</span>
+              <span class="flow-step">Voluntary external sphincter / 外括约肌随意控制</span>
+              <span class="flow-step">Valsalva maneuver / Valsalva 动作</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="confusions">
+      <div class="wrap">
+        <div class="eyebrow">Do Not Confuse / 不要混淆</div>
+        <h2>Four mistakes that break the whole story.</h2>
+        <p class="subtitle">
+          These pairs are deliberately separated because they answer different physiological questions: what digests, what transports, what enters blood, and what triggers each hormone.
+          <br />
+          <span class="zh">这些概念必须分开记：谁负责消化、谁负责运输、谁进入血液、什么刺激哪种激素。</span>
+        </p>
+        <div class="confuse-grid">
+          <article class="glass confuse-card">
+            <strong>Bile emulsifies fat but has no enzymes.</strong>
+            <p class="zh">胆汁乳化脂肪，但没有消化酶。</p>
+            <p class="muted">Bile makes lipid droplets easier for pancreatic lipase to attack; the enzyme is pancreatic lipase, not bile.</p>
+          </article>
+          <article class="glass confuse-card">
+            <strong>Pepsin digests protein, not carbohydrate.</strong>
+            <p class="zh">胃蛋白酶消化蛋白，不消化碳水。</p>
+            <p class="muted">Starch digestion starts in the mouth with salivary amylase and continues with pancreatic amylase.</p>
+          </article>
+          <article class="glass confuse-card">
+            <strong>Most nutrients enter blood; fats enter lymph.</strong>
+            <p class="zh">多数营养入血，脂肪入淋巴。</p>
+            <p class="muted">Glucose and amino acids enter capillaries; chylomicrons leave enterocytes through lacteals.</p>
+          </article>
+          <article class="glass confuse-card">
+            <strong>Secretin responds to acid; CCK responds to fat/protein.</strong>
+            <p class="zh">促胰液素响应酸，CCK 响应脂肪/蛋白。</p>
+            <p class="muted">Secretin drives bicarbonate-rich pancreatic juice; CCK drives bile release, pancreatic enzymes and satiety.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="tables">
+      <div class="wrap">
+        <div class="eyebrow">Memory Tables / 速记表</div>
+        <h2>Secretion and hormone logic in one scan.</h2>
+
+        <div class="table-wrap glass">
+          <table class="study-table">
+            <thead>
+              <tr>
+                <th>Source / 分泌来源</th>
+                <th>Secretion / 分泌物</th>
+                <th>Stimulus / 刺激</th>
+                <th>Function / 作用</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Salivary glands<br /><span class="zh">唾液腺</span></td>
+                <td>Saliva, amylase, lingual lipase, mucus, IgA<br /><span class="zh">唾液、淀粉酶、舌脂肪酶、黏液、IgA</span></td>
+                <td>Parasympathetic input, taste, chewing<br /><span class="zh">副交感、味觉、咀嚼</span></td>
+                <td>Lubrication, buffering, starch digestion, defense<br /><span class="zh">润滑、缓冲、淀粉消化、防御</span></td>
+              </tr>
+              <tr>
+                <td>Surface mucous cells<br /><span class="zh">表面黏液细胞</span></td>
+                <td>Mucus + HCO3-<br /><span class="zh">黏液 + 碳酸氢盐</span></td>
+                <td>Gastric irritation, local protection demand<br /><span class="zh">胃黏膜刺激、局部保护需求</span></td>
+                <td>Physical and chemical barrier against acid-pepsin injury<br /><span class="zh">抵抗酸和胃蛋白酶损伤的物理/化学屏障</span></td>
+              </tr>
+              <tr>
+                <td>Parietal cells<br /><span class="zh">壁细胞</span></td>
+                <td>HCl + intrinsic factor<br /><span class="zh">盐酸 + 内因子</span></td>
+                <td>Gastrin, vagal input, histamine<br /><span class="zh">胃泌素、迷走神经、组胺</span></td>
+                <td>Pepsin activation, protein denaturation, B12 absorption support<br /><span class="zh">激活胃蛋白酶、蛋白变性、支持维生素 B12 吸收</span></td>
+              </tr>
+              <tr>
+                <td>Chief cells<br /><span class="zh">主细胞</span></td>
+                <td>Pepsinogen + gastric lipase<br /><span class="zh">胃蛋白酶原 + 胃脂肪酶</span></td>
+                <td>Vagal input, acid environment<br /><span class="zh">迷走神经、酸性环境</span></td>
+                <td>Protein digestion begins; lipid digestion continues<br /><span class="zh">蛋白质消化开始；脂质消化继续</span></td>
+              </tr>
+              <tr>
+                <td>Pancreatic duct cells<br /><span class="zh">胰腺导管细胞</span></td>
+                <td>HCO3--rich fluid<br /><span class="zh">富含碳酸氢盐的液体</span></td>
+                <td>Secretin from acidic chyme<br /><span class="zh">酸性食糜刺激促胰液素</span></td>
+                <td>Neutralizes gastric acid in duodenum<br /><span class="zh">中和十二指肠内胃酸</span></td>
+              </tr>
+              <tr>
+                <td>Pancreatic acinar cells<br /><span class="zh">胰腺腺泡细胞</span></td>
+                <td>Amylase, proteases, lipase, RNase, DNase<br /><span class="zh">淀粉酶、蛋白酶、脂肪酶、核酸酶</span></td>
+                <td>CCK, vagal input<br /><span class="zh">CCK、迷走神经</span></td>
+                <td>Digests carbohydrates, proteins, fats and nucleic acids<br /><span class="zh">消化碳水、蛋白、脂肪和核酸</span></td>
+              </tr>
+              <tr>
+                <td>Liver / gallbladder<br /><span class="zh">肝 / 胆囊</span></td>
+                <td>Bile salts, pigments, lecithin, cholesterol; no enzymes<br /><span class="zh">胆盐、胆色素、卵磷脂、胆固醇；无酶</span></td>
+                <td>CCK, secretin, bile acid recycling<br /><span class="zh">CCK、促胰液素、胆汁酸回收</span></td>
+                <td>Emulsification, micelles, optimal pH for pancreatic enzymes<br /><span class="zh">乳化、胶束形成、为胰酶提供合适 pH</span></td>
+              </tr>
+              <tr>
+                <td>Large intestine goblet cells<br /><span class="zh">大肠杯状细胞</span></td>
+                <td>Mucus<br /><span class="zh">黏液</span></td>
+                <td>Mechanical irritation by feces<br /><span class="zh">粪便机械刺激</span></td>
+                <td>Lubrication, protection from abrasion and fecal acids<br /><span class="zh">润滑，防止摩擦和粪便酸损伤</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-wrap glass">
+          <table class="study-table">
+            <thead>
+              <tr>
+                <th>Hormone / 激素</th>
+                <th>Source / 来源</th>
+                <th>Stimulus / 刺激</th>
+                <th>Action / 作用</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Gastrin<br /><span class="zh">胃泌素</span></td>
+                <td>G cells in stomach<br /><span class="zh">胃 G 细胞</span></td>
+                <td>Peptides in lumen, stomach distension<br /><span class="zh">管腔肽类、胃扩张</span></td>
+                <td>Increases gastric acid secretion and motility<br /><span class="zh">增加胃酸分泌和胃运动</span></td>
+              </tr>
+              <tr>
+                <td>Secretin<br /><span class="zh">促胰液素</span></td>
+                <td>S cells in duodenum/jejunum<br /><span class="zh">十二指肠/空肠 S 细胞</span></td>
+                <td>Acidic chyme, partially digested proteins/fatty acids<br /><span class="zh">酸性食糜、部分消化蛋白和脂肪酸</span></td>
+                <td>Increases HCO3--rich pancreatic juice and bile; slows stomach<br /><span class="zh">增加富含碳酸氢盐的胰液和胆汁；抑制胃</span></td>
+              </tr>
+              <tr>
+                <td>CCK<br /><span class="zh">胆囊收缩素</span></td>
+                <td>Endocrine cells of small intestine<br /><span class="zh">小肠内分泌细胞</span></td>
+                <td>Fatty acids and partially digested proteins<br /><span class="zh">脂肪酸和部分消化蛋白</span></td>
+                <td>Gallbladder contraction, pancreatic enzymes, Oddi opening, satiety<br /><span class="zh">胆囊收缩、胰酶分泌、Oddi 括约肌开放、饱腹感</span></td>
+              </tr>
+              <tr>
+                <td>GIP<br /><span class="zh">胃抑制肽</span></td>
+                <td>K cells in duodenum/jejunum<br /><span class="zh">十二指肠/空肠 K 细胞</span></td>
+                <td>Glucose and fatty foods<br /><span class="zh">葡萄糖和脂肪性食物</span></td>
+                <td>Decreases gastric acid/emptying; stimulates insulin release<br /><span class="zh">减少胃酸和胃排空；刺激胰岛素释放</span></td>
+              </tr>
+              <tr>
+                <td>Motilin<br /><span class="zh">胃动素</span></td>
+                <td>Small intestine and colon<br /><span class="zh">小肠和结肠</span></td>
+                <td>Fasting<br /><span class="zh">空腹</span></td>
+                <td>Coordinates peristalsis and migrating motor complex<br /><span class="zh">协调蠕动和移行性运动复合波</span></td>
+              </tr>
+              <tr>
+                <td>Ghrelin<br /><span class="zh">饥饿素</span></td>
+                <td>Stomach<br /><span class="zh">胃</span></td>
+                <td>Fasting or starvation; suppressed by eating<br /><span class="zh">空腹/饥饿；进食后受抑制</span></td>
+                <td>Stimulates appetite<br /><span class="zh">刺激食欲</span></td>
+              </tr>
+              <tr>
+                <td>Somatostatin<br /><span class="zh">生长抑素</span></td>
+                <td>D cells throughout GI tract<br /><span class="zh">胃肠道 D 细胞</span></td>
+                <td>Eating fatty foods, inhibitory feedback<br /><span class="zh">脂肪性食物、抑制性反馈</span></td>
+                <td>Reduces gastrin, acid, insulin, pancreatic enzymes and absorption<br /><span class="zh">减少胃泌素、胃酸、胰岛素、胰酶和营养吸收</span></td>
+              </tr>
+              <tr>
+                <td>VIP<br /><span class="zh">血管活性肠肽</span></td>
+                <td>Nerve fibers throughout GI tract<br /><span class="zh">胃肠道神经纤维</span></td>
+                <td>Local neural activity<br /><span class="zh">局部神经活动</span></td>
+                <td>Vasodilation, water/electrolyte secretion, smooth muscle relaxation<br /><span class="zh">扩血管、水/电解质分泌、平滑肌松弛</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="eyebrow">Food Journey Timeline / 食物推进时间轴</div>
+        <h2>Bolus to waste, state by state.</h2>
+        <div class="timeline" id="timeline"></div>
+      </div>
+    </section>
+
+    <main id="organ-sections"></main>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="eyebrow">Lipid Digestion / 脂肪消化</div>
+        <h2>From droplet to lymph.</h2>
+        <p class="subtitle">Fat droplet → Emulsification → Micelle → Enterocyte → Chylomicron → Lymphatic lacteal</p>
+        <div class="glass lab">
+          <div class="lab-viz" id="lipid-viz">
+            <div class="lacteal"></div>
+          </div>
+          <div id="lipid-steps"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="eyebrow">Absorption Zoom / 吸收放大</div>
+        <h2>Circular folds to microvilli.</h2>
+        <div class="zoom-grid" id="zoom-grid"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="eyebrow">Hormonal Regulation Network / 激素调控网络</div>
+        <h2>Signals make digestion systemic.</h2>
+        <div class="glass network">
+          <svg viewBox="0 0 1000 520" id="hormone-svg"></svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="min-height: auto; padding-top: 40px">
+      <div class="wrap glass" style="padding: 34px; text-align: center">
+        <div class="eyebrow">Journey complete / 旅程完成</div>
+        <h3 style="margin-top: 12px">Digestion is a coordinated system, not isolated organs.</h3>
+        <p class="muted">Motility, secretion, enzymes, absorption, hormones, nerves and clinical risk all move together.</p>
+      </div>
+    </section>
+
+    <script>
+      const organs = [
+        {
+          id: "mouth",
+          en: "Mouth",
+          zh: "口腔",
+          x: 50,
+          y: 10,
+          color: "#48f4ff",
+          state: "Bolus formation / 食团形成",
+          modules: [
+            ["Anatomy / 解剖结构", "Teeth, tongue and salivary glands initiate the journey.", "牙齿、舌和唾液腺启动食物旅程。"],
+            ["Motor Function / 运动功能", "Mastication increases surface area and shapes a swallowable bolus.", "咀嚼增加表面积，并形成可吞咽食团。"],
+            ["Secretory Function / 分泌功能", "Saliva is 99.5% water, pH 6.35-6.85, and contains HCO3-, phosphate, mucins, IgA, lysozyme, lactoferrin, amylase and lingual lipase.", "唾液 99.5% 为水，pH 6.35-6.85，含碳酸氢盐、磷酸盐、黏蛋白、IgA、溶菌酶、乳铁蛋白、淀粉酶和舌脂肪酶。"],
+            ["Digestive Function / 消化功能", "Chloride activates salivary amylase; starch begins becoming maltose, maltotriose and alpha-dextrins.", "氯离子激活唾液淀粉酶；淀粉开始转化为麦芽糖、麦芽三糖和 α-糊精。"],
+            ["Absorptive Function / 吸收功能", "Minimal nutrient absorption occurs here.", "此处营养吸收很少。"],
+            ["Hormonal Regulation / 激素调控", "Cephalic phase signals prepare stomach acid and motility.", "头期反射为胃酸分泌和胃运动做准备。"],
+            ["Clinical Correlation / 临床关联", "Xerostomia reduces bolus lubrication and oral digestion.", "口干会降低食团润滑和口腔消化效率。"]
+          ],
+          terms: ["Mastication 咀嚼", "Salivary amylase / ptyalin 唾液淀粉酶", "Lingual lipase 舌脂肪酶", "IgA / lysozyme / lactoferrin 防御因子", "1-1.6 L/day 每日唾液量"]
+        },
+        {
+          id: "pharynx",
+          en: "Pharynx",
+          zh: "咽",
+          x: 50,
+          y: 18,
+          color: "#7ef7d4",
+          state: "Swallowing reflex / 吞咽反射",
+          modules: [
+            ["Anatomy / 解剖结构", "A muscular crossroad connecting oral cavity and esophagus.", "连接口腔与食管的肌性通道。"],
+            ["Motor Function / 运动功能", "Swallowing has oral voluntary, pharyngeal and esophageal phases; solids reach the stomach in 4-8 seconds, liquids in about 1 second.", "吞咽分为口腔随意期、咽期和食管期；固体约 4-8 秒到胃，液体约 1 秒。"],
+            ["Secretory Function / 分泌功能", "Mucus maintains a low-friction passage.", "黏液维持低摩擦通道。"],
+            ["Digestive Function / 消化功能", "No major chemical digestion occurs.", "几乎不发生主要化学消化。"],
+            ["Absorptive Function / 吸收功能", "No meaningful absorption.", "无显著吸收。"],
+            ["Hormonal Regulation / 激素调控", "Primarily neural reflex control.", "主要受神经反射控制。"],
+            ["Clinical Correlation / 临床关联", "Dysphagia can cause aspiration and malnutrition.", "吞咽困难可导致误吸和营养不良。"]
+          ],
+          terms: ["Deglutition 吞咽", "Oral phase 口腔期", "Pharyngeal phase 咽期", "Esophageal phase 食管期", "Epiglottis 会厌", "Aspiration 误吸"]
+        },
+        {
+          id: "esophagus",
+          en: "Esophagus",
+          zh: "食管",
+          x: 50,
+          y: 31,
+          color: "#63b3ff",
+          state: "Peristaltic transport / 蠕动运输",
+          modules: [
+            ["Anatomy / 解剖结构", "A collapsible muscular tube about 25 cm long.", "约 25 cm 长的可塌陷肌性管道。"],
+            ["Motor Function / 运动功能", "Primary and secondary peristalsis drive bolus to the stomach.", "原发与继发蠕动将食团推向胃。"],
+            ["Secretory Function / 分泌功能", "Mucus protects mucosa from abrasion.", "黏液保护黏膜免受摩擦。"],
+            ["Digestive Function / 消化功能", "No digestive enzyme secretion.", "不分泌主要消化酶。"],
+            ["Absorptive Function / 吸收功能", "No nutrient absorption.", "无营养吸收。"],
+            ["Hormonal Regulation / 激素调控", "Lower esophageal sphincter tone coordinates reflux prevention.", "下食管括约肌张力帮助防止反流。"],
+            ["Clinical Correlation / 临床关联", "GERD exposes mucosa to acid and pepsin.", "胃食管反流使黏膜暴露于酸和胃蛋白酶。"]
+          ],
+          terms: ["Peristalsis 蠕动", "Lower esophageal sphincter 下食管括约肌", "GERD 胃食管反流病"]
+        },
+        {
+          id: "stomach",
+          en: "Stomach",
+          zh: "胃",
+          x: 58,
+          y: 48,
+          color: "#ff7474",
+          state: "Chyme generation / 食糜生成",
+          modules: [
+            ["Anatomy / 解剖结构", "A J-shaped reservoir connecting esophagus and duodenum.", "连接食管和十二指肠的 J 形储存器。"],
+            ["Motor Function / 运动功能", "The fundus stores food for about 1 hour; antral rings mix chyme, and only about 3 mL passes the pylorus per peristaltic ring.", "胃底约储存食物 1 小时；胃窦蠕动环混合食糜，每个蠕动环约 3 mL 通过幽门。"],
+            ["Secretory Function / 分泌功能", "Parietal cells secrete HCl and intrinsic factor; chief cells release pepsinogen; mucus and HCO3- create a pH 2 lumen to pH 7 surface gradient.", "壁细胞分泌盐酸和内因子；主细胞释放胃蛋白酶原；黏液和碳酸氢盐形成管腔 pH 2 到细胞表面 pH 7 的梯度。"],
+            ["Digestive Function / 消化功能", "Protein digestion begins as pepsin activates at low pH.", "低 pH 激活胃蛋白酶，蛋白质消化开始。"],
+            ["Absorptive Function / 吸收功能", "Limited absorption of water, alcohol and some drugs.", "少量吸收水、酒精和部分药物。"],
+            ["Hormonal Regulation / 激素调控", "Gastrin increases acid and motility; CCK, secretin and GIP slow emptying.", "胃泌素增加酸分泌和运动；CCK、促胰液素和 GIP 减慢胃排空。"],
+            ["Clinical Correlation / 临床关联", "Excess acid and impaired mucus defenses can cause peptic ulcer.", "酸过多或黏液屏障受损可导致消化性溃疡。"]
+          ],
+          terms: ["Retropulsion 反推运动", "Gastric acid 胃酸", "Pepsinogen → pepsin 胃蛋白酶原 → 胃蛋白酶", "Intrinsic factor 内因子", "Mucus-HCO3- barrier 黏液-碳酸氢盐屏障", "Gastric emptying 2-4 h 胃排空"]
+        },
+        {
+          id: "small-intestine",
+          en: "Small Intestine",
+          zh: "小肠",
+          x: 51,
+          y: 63,
+          color: "#ffd15c",
+          state: "Nutrient absorption / 营养吸收",
+          modules: [
+            ["Anatomy / 解剖结构", "Circular folds, villi and microvilli multiply absorptive surface.", "环形皱襞、绒毛和微绒毛显著增加吸收面积。"],
+            ["Motor Function / 运动功能", "Segmentation mixes chyme; peristalsis advances it aborally.", "分节运动混合食糜；蠕动向远端推进。"],
+            ["Secretory Function / 分泌功能", "Brunner glands secrete alkaline glycoproteins and HCO3- at pH 8.1-9.3; crypts of Lieberkühn provide intestinal juice.", "十二指肠腺分泌 pH 8.1-9.3 的碱性糖蛋白和碳酸氢盐；Lieberkühn 隐窝提供肠液。"],
+            ["Digestive Function / 消化功能", "Enterokinase activates trypsinogen; brush border enzymes complete carbohydrate, peptide and nucleic acid digestion.", "肠激酶激活胰蛋白酶原；刷状缘酶完成碳水、肽类和核酸消化。"],
+            ["Absorptive Function / 吸收功能", "Kerckring folds, villi and microvilli enlarge surface area; most nutrients enter blood, while fats enter lymph through lacteals.", "Kerckring 环形皱襞、绒毛和微绒毛扩大吸收面积；多数营养入血，脂肪经乳糜管入淋巴。"],
+            ["Hormonal Regulation / 激素调控", "Secretin, CCK, GIP and motilin coordinate secretion and transit.", "促胰液素、CCK、GIP 和胃动素协调分泌与转运。"],
+            ["Clinical Correlation / 临床关联", "Villous injury reduces surface area and causes malabsorption.", "绒毛损伤减少表面积并导致吸收不良。"]
+          ],
+          terms: ["Segmentation 分节运动", "Brunner glands 十二指肠腺", "Crypts of Lieberkühn Lieberkühn 隐窝", "Enterokinase 肠激酶", "Kerckring folds 环形皱襞", "Villi / microvilli 绒毛 / 微绒毛"]
+        },
+        {
+          id: "pancreas",
+          en: "Pancreas",
+          zh: "胰腺",
+          x: 64,
+          y: 57,
+          color: "#65f58b",
+          state: "Enzyme and bicarbonate release / 酶与碳酸氢盐释放",
+          modules: [
+            ["Anatomy / 解剖结构", "Acinar and duct cells drain into the duodenum.", "腺泡细胞和导管细胞分泌物进入十二指肠。"],
+            ["Motor Function / 运动功能", "Duct flow is coupled to duodenal chyme signals.", "导管液流与十二指肠食糜信号耦联。"],
+            ["Secretory Function / 分泌功能", "Acini secrete zymogens and enzymes; ducts secrete about 1 L/day of HCO3--rich isotonic fluid.", "腺泡分泌酶原和消化酶；导管每日分泌约 1 L 富含碳酸氢盐的等渗液。"],
+            ["Digestive Function / 消化功能", "Pancreatic juice digests starch, proteins, triglycerides and nucleic acids via amylase, proteases, lipase, RNase and DNase.", "胰液通过淀粉酶、蛋白酶、脂肪酶、RNase 和 DNase 消化淀粉、蛋白质、甘油三酯和核酸。"],
+            ["Absorptive Function / 吸收功能", "Supports absorption by generating absorbable molecules.", "通过生成可吸收分子来支持吸收。"],
+            ["Hormonal Regulation / 激素调控", "Secretin drives bicarbonate; CCK drives enzyme secretion.", "促胰液素促进碳酸氢盐；CCK 促进酶分泌。"],
+            ["Clinical Correlation / 临床关联", "Premature enzyme activation can trigger pancreatitis.", "酶过早激活可诱发胰腺炎。"]
+          ],
+          terms: ["Pancreatic enzymes 胰酶", "Bicarbonate 碳酸氢盐", "Trypsin / chymotrypsin 胰蛋白酶 / 糜蛋白酶", "Carboxypeptidase / elastase 羧肽酶 / 弹性蛋白酶", "RNase / DNase 核酸酶"]
+        },
+        {
+          id: "liver-gallbladder",
+          en: "Liver & Gallbladder",
+          zh: "肝与胆囊",
+          x: 42,
+          y: 53,
+          color: "#b28cff",
+          state: "Bile synthesis, storage and release / 胆汁合成、储存与释放",
+          modules: [
+            ["Anatomy / 解剖结构", "Hepatocytes produce bile; gallbladder stores and concentrates it.", "肝细胞产生胆汁；胆囊储存并浓缩胆汁。"],
+            ["Motor Function / 运动功能", "CCK contracts the gallbladder and coordinates bile delivery.", "CCK 促使胆囊收缩并协调胆汁输送。"],
+            ["Secretory Function / 分泌功能", "Bile contains water, bile salts, bile pigments, lecithin, cholesterol and electrolytes; it has pH 7.8-8.6 and no enzymes.", "胆汁含水、胆盐、胆色素、卵磷脂、胆固醇和电解质；pH 7.8-8.6，且不含消化酶。"],
+            ["Digestive Function / 消化功能", "Bile dilutes gastric contents, optimizes duodenal pH, inhibits bacterial growth, emulsifies fat and forms mixed micelles.", "胆汁稀释胃内容物、优化十二指肠 pH、抑制细菌生长、乳化脂肪并形成混合胶束。"],
+            ["Absorptive Function / 吸收功能", "About 90% of bile acids are reabsorbed in the intestine and returned to the liver for resecretion.", "约 90% 胆汁酸在肠道重吸收并回到肝脏再分泌。"],
+            ["Hormonal Regulation / 激素调控", "CCK and secretin coordinate bile release and alkaline flow.", "CCK 和促胰液素协调胆汁释放与碱性液流。"],
+            ["Clinical Correlation / 临床关联", "Gallstones can obstruct bile flow and cause biliary colic.", "胆结石可阻塞胆流并引起胆绞痛。"]
+          ],
+          terms: ["Bile pH 7.8-8.6 胆汁 pH", "No enzymes 无酶", "Bile salts 胆盐", "Lecithin 卵磷脂", "Micelles 胶束", "Enterohepatic circulation 肠肝循环"]
+        },
+        {
+          id: "colon",
+          en: "Large Intestine",
+          zh: "大肠",
+          x: 50,
+          y: 76,
+          color: "#ff9f6e",
+          state: "Water recovery and microbiota processing / 水分回收与菌群处理",
+          modules: [
+            ["Anatomy / 解剖结构", "Frames the small intestine and houses dense microbiota.", "环绕小肠并容纳大量肠道菌群。"],
+            ["Motor Function / 运动功能", "Haustral contractions mix contents; mass movements occur 1-3 times/day and move fecal material distally.", "结肠袋收缩混合内容物；集团运动每日 1-3 次，将粪便向远端推进。"],
+            ["Secretory Function / 分泌功能", "Lieberkühn crypts lack villi but secrete mucus that protects against abrasion, bacterial activity and fecal acids.", "大肠 Lieberkühn 隐窝无绒毛，但分泌黏液以防摩擦、细菌活动和粪便酸损伤。"],
+            ["Digestive Function / 消化功能", "Bacteria degrade cellulose, undigested proteins, cholesterol and drugs, producing gases and metabolites.", "细菌分解纤维素、未消化蛋白、胆固醇和药物，产生气体和代谢产物。"],
+            ["Absorptive Function / 吸收功能", "The proximal colon absorbs water and electrolytes to form solid stool; feces are about three quarters water.", "近端结肠吸收水和电解质形成固体粪便；粪便约四分之三为水。"],
+            ["Hormonal Regulation / 激素调控", "Motility integrates ENS, autonomic and local chemical signals.", "运动整合 ENS、自主神经和局部化学信号。"],
+            ["Clinical Correlation / 临床关联", "Transit time determines constipation or diarrhea.", "转运时间决定便秘或腹泻。"]
+          ],
+          terms: ["Haustra 结肠袋", "Mass movement 1-3/day 集团运动", "Gastrocolic reflex 胃结肠反射", "Vitamin K / B vitamins 维生素 K / B 族", "Stercobilin 粪胆素"]
+        },
+        {
+          id: "rectum",
+          en: "Rectum",
+          zh: "直肠",
+          x: 50,
+          y: 91,
+          color: "#ffce8a",
+          state: "Defecation reflex / 排便反射",
+          modules: [
+            ["Anatomy / 解剖结构", "Terminal reservoir of the GI tract.", "胃肠道末端储存区。"],
+            ["Motor Function / 运动功能", "Rectal stretch initiates the defecation reflex; intra-abdominal pressure rises during the Valsalva maneuver.", "直肠扩张启动排便反射；Valsalva 动作升高腹内压。"],
+            ["Secretory Function / 分泌功能", "Mucus reduces friction during elimination.", "黏液降低排出过程中的摩擦。"],
+            ["Digestive Function / 消化功能", "No digestion.", "不进行消化。"],
+            ["Absorptive Function / 吸收功能", "Limited fluid absorption may continue.", "可继续少量液体吸收。"],
+            ["Hormonal Regulation / 激素调控", "Predominantly neural control with voluntary sphincter modulation.", "主要受神经控制，并受随意括约肌调节。"],
+            ["Clinical Correlation / 临床关联", "Pelvic floor dysfunction can disrupt defecation.", "盆底功能障碍可影响排便。"]
+          ],
+          terms: ["Defecation reflex 排便反射", "Valsalva maneuver Valsalva 动作", "Internal anal sphincter 肛门内括约肌", "External anal sphincter 肛门外括约肌"]
+        }
+      ];
+
+      const stages = [
+        ["Bolus", "食团", "Chewed, lubricated food leaves the mouth.", "经咀嚼和润滑后的食物离开口腔。"],
+        ["Chyme", "食糜", "Gastric acid and retropulsion transform bolus into acidic chyme.", "胃酸和反推运动将食团变成酸性食糜。"],
+        ["Nutrients", "营养分子", "Enzymes, bile and brush border digestion produce absorbable molecules.", "胰酶、胆汁和刷状缘消化产生可吸收分子。"],
+        ["Waste", "废物", "Water recovery and bacterial processing prepare feces for elimination.", "水分回收和细菌处理为粪便排出做准备。"]
+      ];
+
+      function renderMap() {
+        const panel = document.getElementById("map-panel");
+        organs.forEach((organ, index) => {
+          const btn = document.createElement("button");
+          const labelSide = organ.x > 55 ? " label-left" : "";
+          const labelVertical = organ.y > 84 ? " label-up" : "";
+          btn.className = "organ-node" + (index === 0 ? " active" : "") + labelSide + labelVertical;
+          btn.style.left = organ.x + "%";
+          btn.style.top = organ.y + "%";
+          btn.style.color = organ.color;
+          btn.innerHTML = `<span class="dot"></span><span class="organ-label"><strong>${organ.en}</strong><br><span class="zh">${organ.zh}</span></span>`;
+          btn.onclick = () => document.getElementById("section-" + organ.id).scrollIntoView({ behavior: "smooth" });
+          panel.appendChild(btn);
+        });
+      }
+
+      function renderTimeline() {
+        const root = document.getElementById("timeline");
+        root.innerHTML = stages
+          .map(([en, zh, desc, zdesc]) => `<article class="glass stage"><h3>${en}</h3><p class="zh">${zh}</p><p class="muted">${desc}</p><p class="zh">${zdesc}</p></article>`)
+          .join("");
+      }
+
+      function renderOrgans() {
+        const root = document.getElementById("organ-sections");
+        root.innerHTML = organs
+          .map(
+            (organ, index) => `
+            <section class="section" id="section-${organ.id}">
+              <div class="wrap organ-section">
+                <aside class="sticky">
+                  <div class="eyebrow">0${index + 1} / Organ Module</div>
+                  <h2>${organ.en}<br><span class="zh">${organ.zh}</span></h2>
+                  <p class="muted">${organ.state}</p>
+                  <div class="organ-viz" style="color:${organ.color}"></div>
+                  ${organ.id === "stomach" ? '<div class="glass" style="margin-top:14px;padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px"><div><span class="zh">pH</span><h3 style="color:var(--acid)">2.0</h3></div><div><span class="zh">Pepsin</span><h3 style="color:var(--protein)">Activated</h3></div></div>' : ""}
+                </aside>
+                <div>
+                  ${organ.modules
+                    .map(
+                      ([title, en, zh]) => `
+                        <article class="glass module">
+                          <h3>${title}</h3>
+                          <p class="muted">${en}</p>
+                          <p class="zh">${zh}</p>
+                          <div class="terms">${organ.terms.map((term) => `<span class="term">${term}</span>`).join("")}</div>
+                        </article>
+                      `
+                    )
+                    .join("")}
+                </div>
+              </div>
+            </section>`
+          )
+          .join("");
+      }
+
+      function renderLipid() {
+        const colors = ["#ffd15c", "#65f58b", "#48f4ff", "#b28cff", "#ff9f6e", "#ff7474"];
+        const steps = ["Fat droplet 脂滴", "Emulsification 乳化", "Micelle 胶束", "Enterocyte 肠上皮细胞", "Chylomicron 乳糜微粒", "Lymphatic lacteal 淋巴乳糜管"];
+        const viz = document.getElementById("lipid-viz");
+        steps.forEach((step, index) => {
+          const particle = document.createElement("div");
+          particle.className = "fat-particle";
+          particle.style.animationDelay = index * 0.24 + "s";
+          particle.style.background = colors[index] + "33";
+          particle.style.boxShadow = `0 0 34px ${colors[index]}55`;
+          viz.appendChild(particle);
+        });
+        document.getElementById("lipid-steps").innerHTML = steps
+          .map((step, index) => `<div class="step"><span class="mini-dot" style="color:${colors[index]}"></span><strong>${step}</strong></div>`)
+          .join("");
+      }
+
+      function renderZoom() {
+        const items = [
+          ["Circular folds", "环形皱襞", 6, "#48f4ff"],
+          ["Villi", "肠绒毛", 18, "#ffd15c"],
+          ["Microvilli", "微绒毛", 42, "#65f58b"]
+        ];
+        document.getElementById("zoom-grid").innerHTML = items
+          .map(([en, zh, count, color]) => {
+            let villi = "";
+            for (let i = 0; i < count; i++) {
+              villi += `<span class="villus" style="color:${color};left:${(i / count) * 100}%;height:${32 + (i % 5) * 9}%;animation-delay:${i * 0.05}s"></span>`;
+            }
+            return `<article class="glass" style="padding:20px"><div class="villi-viz">${villi}</div><h3 style="margin-top:18px">${en}</h3><p class="zh">${zh}</p><p class="muted">${en === "Microvilli" ? "Glucose enters capillaries; lipids enter lacteals." : "Surface area expands before molecular absorption."}</p></article>`;
+          })
+          .join("");
+      }
+
+      function renderHormones() {
+        const svg = document.getElementById("hormone-svg");
+        const nodes = [
+          ["Gastrin", "胃泌素", 150, 135, "#ff7474"],
+          ["Secretin", "促胰液素", 365, 80, "#48f4ff"],
+          ["CCK", "胆囊收缩素", 360, 220, "#65f58b"],
+          ["GIP", "胃抑制肽", 575, 130, "#ffd15c"],
+          ["Motilin", "胃动素", 580, 290, "#b28cff"],
+          ["Ghrelin", "饥饿素", 180, 320, "#ff9f6e"],
+          ["Somatostatin", "生长抑素", 790, 230, "#d7ff5b"],
+          ["Stomach", "胃", 120, 450, "#ffffff"],
+          ["Pancreas", "胰腺", 500, 450, "#ffffff"],
+          ["Gallbladder", "胆囊", 790, 430, "#ffffff"]
+        ];
+        const links = [
+          [0, 7],
+          [1, 8],
+          [2, 8],
+          [2, 9],
+          [3, 7],
+          [4, 7],
+          [5, 7],
+          [6, 7],
+          [6, 8]
+        ];
+        svg.innerHTML =
+          links.map(([a, b]) => `<line x1="${nodes[a][2]}" y1="${nodes[a][3]}" x2="${nodes[b][2]}" y2="${nodes[b][3]}" stroke="rgba(72,244,255,.38)" stroke-width="1.5" stroke-dasharray="5 7"></line>`).join("") +
+          nodes
+            .map(([en, zh, x, y, color]) => `<g transform="translate(${x} ${y})"><circle r="38" fill="${color}22" stroke="${color}" stroke-width="1.5"></circle><text y="-2" text-anchor="middle" fill="white" font-size="13" font-weight="700">${en}</text><text y="16" text-anchor="middle" fill="rgba(255,255,255,.55)" font-size="12">${zh}</text></g>`)
+            .join("");
+      }
+
+      function activateVisibleOrgan() {
+        const nodes = Array.from(document.querySelectorAll(".organ-node"));
+        let active = 0;
+        organs.forEach((organ, index) => {
+          const section = document.getElementById("section-" + organ.id);
+          if (!section) return;
+          const rect = section.getBoundingClientRect();
+          if (rect.top < window.innerHeight * 0.55 && rect.bottom > window.innerHeight * 0.25) active = index;
+        });
+        nodes.forEach((node, index) => node.classList.toggle("active", index === active));
+      }
+
+      function updateStudyNav() {
+        const links = Array.from(document.querySelectorAll("[data-nav-target]"));
+        let activeLink = links[0];
+        links.forEach((link) => {
+          const section = document.getElementById(link.dataset.navTarget);
+          if (!section) return;
+          const rect = section.getBoundingClientRect();
+          if (rect.top <= window.innerHeight * 0.38 && rect.bottom >= window.innerHeight * 0.22) {
+            activeLink = link;
+          }
+        });
+        links.forEach((link) => link.classList.toggle("active", link === activeLink));
+        const current = document.getElementById("current-section");
+        if (current && activeLink) {
+          current.textContent = activeLink.textContent.trim().replace(/\s+/g, " ");
+        }
+      }
+
+      function startParticles() {
+        const canvas = document.getElementById("particle-canvas");
+        const ctx = canvas.getContext("2d");
+        const particles = Array.from({ length: 88 }, (_, i) => ({
+          t: Math.random(),
+          r: 2 + Math.random() * 4,
+          speed: 0.00045 + Math.random() * 0.00055,
+          color: ["#48f4ff", "#ffd15c", "#65f58b", "#ff7474"][i % 4]
+        }));
+
+        function resize() {
+          canvas.width = window.innerWidth * devicePixelRatio;
+          canvas.height = window.innerHeight * devicePixelRatio;
+          canvas.style.width = window.innerWidth + "px";
+          canvas.style.height = window.innerHeight + "px";
+          ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+        }
+
+        function point(t) {
+          const w = window.innerWidth;
+          const h = window.innerHeight;
+          return {
+            x: w * (0.5 + Math.sin(t * Math.PI * 4) * 0.08),
+            y: h * (0.08 + t * 0.84)
+          };
+        }
+
+        function draw() {
+          ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+          ctx.lineWidth = 4;
+          ctx.strokeStyle = "rgba(72,244,255,.52)";
+          ctx.shadowBlur = 22;
+          ctx.shadowColor = "#48f4ff";
+          ctx.beginPath();
+          for (let i = 0; i <= 120; i++) {
+            const p = point(i / 120);
+            if (i === 0) ctx.moveTo(p.x, p.y);
+            else ctx.lineTo(p.x, p.y);
+          }
+          ctx.stroke();
+          particles.forEach((p) => {
+            p.t = (p.t + p.speed) % 1;
+            const pos = point(p.t);
+            ctx.fillStyle = p.color;
+            ctx.shadowColor = p.color;
+            ctx.shadowBlur = 20;
+            ctx.beginPath();
+            ctx.arc(pos.x + Math.sin(p.t * 40) * 28, pos.y, p.r, 0, Math.PI * 2);
+            ctx.fill();
+          });
+          requestAnimationFrame(draw);
+        }
+
+        resize();
+        window.addEventListener("resize", resize);
+        draw();
+      }
+
+      renderMap();
+      renderTimeline();
+      renderOrgans();
+      renderLipid();
+      renderZoom();
+      renderHormones();
+      startParticles();
+      activateVisibleOrgan();
+      updateStudyNav();
+      window.addEventListener("scroll", activateVisibleOrgan, { passive: true });
+      window.addEventListener("scroll", updateStudyNav, { passive: true });
+      window.addEventListener("resize", updateStudyNav);
+    </script>
+  </body>
+</html>

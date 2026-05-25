@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 222 47% 4%;
+  --foreground: 210 40% 96%;
+  --border: 210 40% 96% / 0.12;
+  --muted: 217 32% 17%;
+  --muted-foreground: 215 20% 72%;
+  --primary: 184 100% 64%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: auto;
+}
+
+body {
+  margin: 0;
+  color: hsl(var(--foreground));
+  background:
+    radial-gradient(circle at 50% -10%, rgba(72, 244, 255, 0.14), transparent 34rem),
+    radial-gradient(circle at 70% 18%, rgba(101, 245, 139, 0.08), transparent 30rem),
+    #030712;
+}
+
+::selection {
+  background: rgba(72, 244, 255, 0.28);
+}
+
+.glass {
+  background: rgba(9, 14, 28, 0.58);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(22px);
+}
+
+.hairline {
+  background-image: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.24), transparent);
+}
+
+.organ-glow {
+  filter: drop-shadow(0 0 18px currentColor);
+}
+
+.react-flow {
+  --xy-node-background-color-default: rgba(12, 18, 34, 0.78);
+  --xy-node-border-default: 1px solid rgba(255, 255, 255, 0.16);
+  --xy-edge-stroke-default: rgba(72, 244, 255, 0.5);
+  --xy-controls-button-background-color-default: rgba(12, 18, 34, 0.86);
+  --xy-controls-button-color-default: rgba(255, 255, 255, 0.8);
+}
