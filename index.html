@@ -1,31 +1,1005 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
-    <meta http-equiv="refresh" content="0; url=interactive-digestion.html?v=organ-animations-2" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Interactive Human Digestion Experience</title>
-    <link rel="canonical" href="interactive-digestion.html?v=organ-animations-2" />
+    <title>单选刷题学习平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'ui-sans-serif', 'system-ui', 'Segoe UI', 'Microsoft YaHei', 'sans-serif']
+            },
+            boxShadow: {
+              glow: '0 0 0 1px rgba(45, 212, 191, 0.18), 0 22px 70px rgba(15, 23, 42, 0.45)'
+            }
+          }
+        }
+      };
+    </script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     <style>
-      body {
-        margin: 0;
-        display: grid;
-        min-height: 100vh;
-        place-items: center;
-        color: rgba(255, 255, 255, 0.86);
-        background: #030712;
-        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      :root {
+        color-scheme: dark;
       }
 
-      a {
-        color: #48f4ff;
+      body {
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at top left, rgba(20, 184, 166, 0.18), transparent 28rem),
+          linear-gradient(135deg, #09090b 0%, #111827 43%, #171717 100%);
+      }
+
+      .glass {
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        background: rgba(15, 23, 42, 0.64);
+        backdrop-filter: blur(18px);
+      }
+
+      .soft-panel {
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        background: rgba(2, 6, 23, 0.42);
+      }
+
+      .option-card {
+        transform: translateY(0);
+      }
+
+      .option-card:hover:not(:disabled) {
+        transform: translateY(-2px);
+      }
+
+      .feedback-pop {
+        animation: feedbackPop 360ms ease-out;
+      }
+
+      .slide-in {
+        animation: slideIn 320ms ease-out both;
+      }
+
+      @keyframes feedbackPop {
+        0% {
+          transform: scale(0.985);
+        }
+        65% {
+          transform: scale(1.012);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
     </style>
   </head>
-  <body>
-    <p>
-      Opening the digestion experience...
-      <a href="interactive-digestion.html?v=organ-animations-2">Open manually</a>
-    </p>
+  <body class="text-zinc-100 antialiased">
+    <main class="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-5 px-4 py-5 sm:px-6 lg:px-8">
+      <header class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p class="text-sm font-medium uppercase tracking-[0.18em] text-teal-300">Local Quiz Studio</p>
+          <h1 class="mt-2 text-3xl font-semibold text-white sm:text-4xl">单选刷题学习平台</h1>
+          <p class="mt-2 max-w-2xl text-sm leading-6 text-zinc-300">拖入包含题目、选项、解析和标签的 .md 或 .txt 文件，即可在本地生成可持续学习的题库。</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="practiceAllBtn" class="inline-flex items-center gap-2 rounded-md border border-teal-400/30 bg-teal-400/10 px-4 py-2 text-sm font-medium text-teal-100 transition hover:bg-teal-400/20">
+            <i data-lucide="list-checks" class="h-4 w-4"></i>
+            全部题目
+          </button>
+          <button id="practiceWrongBtn" class="inline-flex items-center gap-2 rounded-md border border-rose-400/30 bg-rose-400/10 px-4 py-2 text-sm font-medium text-rose-100 transition hover:bg-rose-400/20">
+            <i data-lucide="rotate-ccw" class="h-4 w-4"></i>
+            错题重练
+          </button>
+          <button id="resetDataBtn" class="inline-flex items-center gap-2 rounded-md border border-zinc-500/30 bg-zinc-900/70 px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-zinc-800">
+            <i data-lucide="trash-2" class="h-4 w-4"></i>
+            清空记录
+          </button>
+        </div>
+      </header>
+
+      <section id="dropZone" class="group glass rounded-lg border-dashed border-teal-300/40 px-5 py-5 shadow-glow transition hover:border-teal-200/70 hover:bg-slate-950/70">
+        <input id="fileInput" class="hidden" type="file" accept=".md,.txt,text/markdown,text/plain" />
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div class="flex items-center gap-4">
+            <div class="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-teal-400/10 text-teal-200 ring-1 ring-teal-300/25 transition group-hover:scale-105">
+              <i data-lucide="upload-cloud" class="h-6 w-6"></i>
+            </div>
+            <div>
+              <h2 class="text-lg font-semibold text-white">拖拽题库文件到这里</h2>
+              <p id="fileStatus" class="mt-1 text-sm text-zinc-300">支持 .md / .txt。格式示例：[x] 标记正确答案，解析：后写答案说明，标签：后写 #知识点。</p>
+            </div>
+          </div>
+          <button id="chooseFileBtn" class="inline-flex items-center justify-center gap-2 rounded-md bg-teal-300 px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-teal-200 active:scale-[0.98]">
+            <i data-lucide="folder-open" class="h-4 w-4"></i>
+            选择文件
+          </button>
+        </div>
+      </section>
+
+      <section class="glass rounded-lg p-4 shadow-glow sm:p-5">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 class="text-lg font-semibold text-white">直接粘贴题库文本</h2>
+            <p id="textInputMeta" class="mt-1 text-sm text-zinc-300">支持 Markdown 或纯文本，格式可为 [x] 选项或 A/B/C/D + Correct answer。</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button id="parseTextBtn" class="inline-flex items-center justify-center gap-2 rounded-md bg-amber-300 px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-amber-200 active:scale-[0.98]">
+              <i data-lucide="scan-text" class="h-4 w-4"></i>
+              解析文本
+            </button>
+            <button id="clearTextBtn" class="inline-flex items-center justify-center gap-2 rounded-md border border-zinc-600 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-zinc-800">
+              <i data-lucide="eraser" class="h-4 w-4"></i>
+              清空
+            </button>
+          </div>
+        </div>
+        <textarea id="textInput" class="mt-4 min-h-40 w-full resize-y rounded-lg border border-zinc-700 bg-zinc-950/70 px-4 py-3 text-sm leading-6 text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-teal-300/70 focus:ring-2 focus:ring-teal-300/20" placeholder="在这里粘贴 .md 或 .txt 题库内容..."></textarea>
+      </section>
+
+      <section class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <article class="glass min-h-[35rem] rounded-lg p-4 shadow-glow sm:p-5">
+          <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div class="min-w-0">
+              <p id="modeLabel" class="text-sm font-medium text-amber-200">等待导入题库</p>
+              <h2 id="quizTitle" class="mt-1 truncate text-xl font-semibold text-white">题目会显示在这里</h2>
+            </div>
+            <div class="flex items-center gap-3 text-sm text-zinc-300">
+              <span id="progressText">0 / 0</span>
+              <span class="h-1.5 w-1.5 rounded-full bg-zinc-500"></span>
+              <span id="scoreText">正确 0</span>
+            </div>
+          </div>
+
+          <div class="h-2 overflow-hidden rounded-full bg-zinc-800">
+            <div id="progressBar" class="h-full w-0 rounded-full bg-gradient-to-r from-teal-300 via-amber-300 to-rose-300 transition-all duration-500"></div>
+          </div>
+
+          <div id="emptyState" class="grid min-h-[24rem] place-items-center text-center">
+            <div class="max-w-md">
+              <div class="mx-auto grid h-16 w-16 place-items-center rounded-md bg-zinc-900 text-teal-200 ring-1 ring-zinc-700">
+                <i data-lucide="file-question" class="h-8 w-8"></i>
+              </div>
+              <h3 class="mt-5 text-xl font-semibold text-white">导入后开始沉浸式刷题</h3>
+              <p class="mt-2 text-sm leading-6 text-zinc-300">系统会自动解析题目、保存进度、捕获错题，并根据标签生成知识点表现分析。</p>
+            </div>
+          </div>
+
+          <div id="quizView" class="hidden pt-5">
+            <div class="mb-5 rounded-lg bg-zinc-950/50 p-5 ring-1 ring-zinc-800">
+              <p id="questionText" class="whitespace-pre-wrap text-lg font-medium leading-8 text-zinc-50"></p>
+            </div>
+
+            <div id="optionsList" class="grid gap-3"></div>
+
+            <div id="answerPanel" class="mt-5 hidden rounded-lg border border-zinc-700 bg-zinc-950/60 p-5">
+              <div class="flex items-center gap-2">
+                <i id="resultIcon" data-lucide="badge-check" class="h-5 w-5 text-teal-300"></i>
+                <p id="resultText" class="font-semibold text-white"></p>
+              </div>
+              <div class="mt-4">
+                <p class="text-sm font-semibold text-zinc-200">解析</p>
+                <p id="explanationText" class="mt-2 whitespace-pre-wrap text-sm leading-6 text-zinc-300"></p>
+              </div>
+              <div class="mt-4">
+                <p class="text-sm font-semibold text-zinc-200">知识点标签</p>
+                <div id="tagList" class="mt-2 flex flex-wrap gap-2"></div>
+              </div>
+            </div>
+
+            <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <button id="prevBtn" class="inline-flex items-center justify-center gap-2 rounded-md border border-zinc-600 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-200 transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-40">
+                <i data-lucide="arrow-left" class="h-4 w-4"></i>
+                上一题
+              </button>
+              <button id="nextBtn" class="inline-flex items-center justify-center gap-2 rounded-md bg-amber-300 px-5 py-2.5 text-sm font-semibold text-zinc-950 transition hover:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-50">
+                下一题
+                <i data-lucide="arrow-right" class="h-4 w-4"></i>
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <aside class="flex flex-col gap-4">
+          <section class="glass rounded-lg p-4">
+            <div class="flex items-center justify-between">
+              <h2 class="text-base font-semibold text-white">实时数据看板</h2>
+              <i data-lucide="bar-chart-3" class="h-5 w-5 text-teal-300"></i>
+            </div>
+            <div class="mt-4 grid grid-cols-2 gap-3">
+              <div class="soft-panel rounded-lg p-4">
+                <p class="text-xs font-medium text-zinc-400">总答题数</p>
+                <p id="totalAnswered" class="mt-2 text-2xl font-semibold text-white">0</p>
+              </div>
+              <div class="soft-panel rounded-lg p-4">
+                <p class="text-xs font-medium text-zinc-400">综合正确率</p>
+                <p id="accuracyRate" class="mt-2 text-2xl font-semibold text-white">0%</p>
+              </div>
+              <div class="soft-panel rounded-lg p-4">
+                <p class="text-xs font-medium text-zinc-400">已导入题数</p>
+                <p id="totalQuestions" class="mt-2 text-2xl font-semibold text-white">0</p>
+              </div>
+              <div class="soft-panel rounded-lg p-4">
+                <p class="text-xs font-medium text-zinc-400">错题本</p>
+                <p id="wrongCount" class="mt-2 text-2xl font-semibold text-white">0</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="glass rounded-lg p-4">
+            <div class="flex items-center justify-between">
+              <h2 class="text-base font-semibold text-white">知识点盲区分析</h2>
+              <i data-lucide="target" class="h-5 w-5 text-amber-300"></i>
+            </div>
+            <div id="weakSpot" class="mt-3 rounded-md border border-amber-300/25 bg-amber-300/10 px-3 py-2 text-sm text-amber-100">暂无统计数据</div>
+            <div class="mt-3 overflow-hidden rounded-lg border border-zinc-700">
+              <table class="w-full text-left text-sm">
+                <thead class="bg-zinc-900 text-xs uppercase text-zinc-400">
+                  <tr>
+                    <th class="px-3 py-3 font-medium">知识点</th>
+                    <th class="px-3 py-3 font-medium">表现</th>
+                    <th class="px-3 py-3 font-medium">正确率</th>
+                  </tr>
+                </thead>
+                <tbody id="tagStatsBody" class="divide-y divide-zinc-800 bg-zinc-950/40"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="glass rounded-lg p-4">
+            <div class="flex items-center justify-between">
+              <h2 class="text-base font-semibold text-white">错题库</h2>
+              <i data-lucide="book-open-check" class="h-5 w-5 text-rose-300"></i>
+            </div>
+            <div id="wrongList" class="mt-3 flex max-h-56 flex-col gap-2 overflow-auto pr-1"></div>
+          </section>
+        </aside>
+      </section>
+    </main>
+
+    <script>
+      const STORAGE_KEY = 'local-single-choice-quiz-state-v1';
+
+      const sampleText = `人体内主要调节呼吸节律的中枢位于哪里？
+[ ] 大脑皮层
+[x] 延髓和脑桥
+[ ] 小脑
+[ ] 丘脑
+解析：呼吸基本节律主要由延髓产生，脑桥参与调节呼吸转换与节律稳定。
+标签：#生理学 #神经调节
+
+动作电位去极化期主要与哪种离子内流有关？
+[x] Na+ 内流
+[ ] K+ 内流
+[ ] Ca2+ 外流
+[ ] Cl- 外流
+解析：电压门控钠通道开放后，Na+ 快速内流，使膜电位迅速上升形成去极化。
+标签：#生理学 #细胞电生理`;
+
+      const state = {
+        questions: [],
+        queue: [],
+        mode: 'all',
+        currentIndex: 0,
+        bankId: 'demo',
+        selectedOption: null,
+        scoreInSession: 0,
+        sessionAnswers: {},
+        storageWarningShown: false,
+        storage: {
+          banks: {}
+        },
+        records: {
+          totalAnswered: 0,
+          totalCorrect: 0,
+          questionStats: {},
+          wrongQuestionIds: [],
+          tagStats: {}
+        }
+      };
+
+      const els = {
+        dropZone: document.getElementById('dropZone'),
+        fileInput: document.getElementById('fileInput'),
+        chooseFileBtn: document.getElementById('chooseFileBtn'),
+        fileStatus: document.getElementById('fileStatus'),
+        textInput: document.getElementById('textInput'),
+        textInputMeta: document.getElementById('textInputMeta'),
+        parseTextBtn: document.getElementById('parseTextBtn'),
+        clearTextBtn: document.getElementById('clearTextBtn'),
+        practiceAllBtn: document.getElementById('practiceAllBtn'),
+        practiceWrongBtn: document.getElementById('practiceWrongBtn'),
+        resetDataBtn: document.getElementById('resetDataBtn'),
+        modeLabel: document.getElementById('modeLabel'),
+        quizTitle: document.getElementById('quizTitle'),
+        progressText: document.getElementById('progressText'),
+        scoreText: document.getElementById('scoreText'),
+        progressBar: document.getElementById('progressBar'),
+        emptyState: document.getElementById('emptyState'),
+        quizView: document.getElementById('quizView'),
+        questionText: document.getElementById('questionText'),
+        optionsList: document.getElementById('optionsList'),
+        answerPanel: document.getElementById('answerPanel'),
+        resultIcon: document.getElementById('resultIcon'),
+        resultText: document.getElementById('resultText'),
+        explanationText: document.getElementById('explanationText'),
+        tagList: document.getElementById('tagList'),
+        prevBtn: document.getElementById('prevBtn'),
+        nextBtn: document.getElementById('nextBtn'),
+        totalAnswered: document.getElementById('totalAnswered'),
+        accuracyRate: document.getElementById('accuracyRate'),
+        totalQuestions: document.getElementById('totalQuestions'),
+        wrongCount: document.getElementById('wrongCount'),
+        tagStatsBody: document.getElementById('tagStatsBody'),
+        weakSpot: document.getElementById('weakSpot'),
+        wrongList: document.getElementById('wrongList')
+      };
+
+      function hashString(input) {
+        let hash = 2166136261;
+        for (let i = 0; i < input.length; i += 1) {
+          hash ^= input.charCodeAt(i);
+          hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
+        }
+        return `q_${(hash >>> 0).toString(16)}`;
+      }
+
+      function parseQuizText(rawText) {
+        const text = rawText.replace(/\r\n?/g, '\n').trim();
+        if (!text) return [];
+
+        const checkboxOptionRegex = /^\s*(?:[-*]\s*)?\[\s*([xX]?)\s*\]\s*(.+?)\s*$/;
+        const letterOptionRegex = /^\s*([A-H])\.\s*(.+?)\s*$/i;
+        const correctAnswerRegex = /^\s*(?:Correct\s+answer|Answer|答案)\s*[:：]\s*([A-H])\b/i;
+        const explanationRegex = /^\s*(?:解析|Explanation|Explain)\s*[:：]?\s*(.*)$/i;
+        const tagRegex = /^\s*(?:标签|Tags?|Knowledge\s*points?)\s*[:：]\s*(.*)$/i;
+        const trapRegex = /^\s*Trap\s+type\s*[:：]\s*(.*)$/i;
+        const questionStartRegex = /^\s*(?:#{1,6}\s*)?Q(?:uestion)?\s*(\d+)\b/i;
+        const headingRegex = /^\s*#{1,6}\s+(.+)$/;
+        const tagExtractRegex = /#[\p{Script=Han}\p{L}\p{N}_-]+/gu;
+        const autoTagRules = [
+          { tag: '#内分泌', pattern: /endocrine|hormone|pituitary|hypothalamus|feedback|内分泌|激素|垂体|下丘脑|反馈/i },
+          { tag: '#甲状腺', pattern: /thyroid|t3|t4|tsh|trh|thyroxine|iodide|calcitonin|甲状腺|碘|降钙素/i },
+          { tag: '#肾上腺', pattern: /adrenal|cortisol|aldosterone|acth|crh|glucocorticoid|mineralocorticoid|catecholamine|肾上腺|皮质醇|醛固酮/i },
+          { tag: '#胰腺血糖', pattern: /pancreas|insulin|glucagon|glucose|glycogen|gluconeogenesis|pancreatic|胰腺|胰岛素|胰高血糖素|血糖|糖原/i },
+          { tag: '#钙磷代谢', pattern: /calcium|pth|parathyroid|vitamin d|calcitriol|bone|钙|甲状旁腺|维生素d|骨/i },
+          { tag: '#神经调节', pattern: /nervous|neuro|synaptic|neurotransmitter|adh|oxytocin|vasopressin|神经|突触|递质|抗利尿|催产素/i },
+          { tag: '#受体机制', pattern: /receptor|intracellular|extracellular|membrane|second messenger|lipid-soluble|water-soluble|受体|膜受体|胞内|脂溶性|水溶性/i },
+          { tag: '#应激反应', pattern: /stress|alarm|resistance|exhaustion|fight-or-flight|应激|警觉|抵抗|衰竭/i }
+        ];
+        const answerTable = new Map(
+          [...text.matchAll(/^\|\s*(?:Q\s*)?(\d+)\s*\|\s*([A-H])\s*\|/gim)]
+            .map((match) => [match[1], match[2].toUpperCase()])
+        );
+        const lines = text.split('\n');
+        const questions = [];
+        let current = freshQuestion();
+        let contextTags = [];
+        let documentTags = [];
+        let mode = 'question';
+
+        function freshQuestion() {
+          return {
+            questionNumber: null,
+            questionLines: [],
+            options: [],
+            explanationLines: [],
+            tags: [],
+            correctLetter: null
+          };
+        }
+
+        function stripMarkdown(value) {
+          return value.replace(/\*\*/g, '').replace(/`/g, '').trim();
+        }
+
+        function makeTag(value) {
+          const compact = stripMarkdown(value)
+            .replace(/[;；,，]/g, ' ')
+            .replace(/\s+/g, '-')
+            .replace(/[^\p{Script=Han}\p{L}\p{N}_-]/gu, '')
+            .replace(/^-+|-+$/g, '');
+          return compact ? `#${compact}` : '';
+        }
+
+        function collectTags(value) {
+          const explicitTags = value.match(tagExtractRegex);
+          if (explicitTags && explicitTags.length) return explicitTags.map((tag) => tag.trim());
+          return value
+            .split(/[;；,，]/)
+            .map(makeTag)
+            .filter(Boolean);
+        }
+
+        function uniqueTags(tags) {
+          return [...new Set(tags.filter(Boolean))];
+        }
+
+        function inferTagsFromContent(question, options, explanation) {
+          const correctOption = options.find((option) => option.isCorrect)?.text || '';
+          const haystack = `${question}\n${correctOption}\n${explanation}`;
+          const inferred = autoTagRules
+            .filter((rule) => rule.pattern.test(haystack))
+            .map((rule) => rule.tag);
+          if (inferred.length) return inferred.slice(0, 3);
+          return [];
+        }
+
+        function commitCurrent() {
+          const question = current.questionLines.join('\n').trim();
+          const explanation = current.explanationLines.join('\n').trim();
+          if (!current.correctLetter && current.questionNumber && answerTable.has(current.questionNumber)) {
+            current.correctLetter = answerTable.get(current.questionNumber);
+          }
+          if (current.correctLetter) {
+            const correctIndex = current.correctLetter.toUpperCase().charCodeAt(0) - 65;
+            current.options = current.options.map((option, index) => ({
+              ...option,
+              isCorrect: index === correctIndex
+            }));
+          }
+          const correctCount = current.options.filter((option) => option.isCorrect).length;
+          if (!question || current.options.length < 2 || correctCount !== 1) {
+            current = freshQuestion();
+            mode = 'question';
+            return;
+          }
+          const inferredTags = inferTagsFromContent(question, current.options, explanation);
+          const normalizedTags = uniqueTags(
+            current.tags.length ? current.tags
+              : inferredTags.length ? inferredTags
+                : contextTags.length ? contextTags
+                  : documentTags.length ? documentTags
+                    : ['#未分类']
+          );
+          const seed = `${question}\n${current.options.map((option) => option.text).join('|')}`;
+          questions.push({
+            id: hashString(seed),
+            question,
+            options: current.options,
+            correctIndex: current.options.findIndex((option) => option.isCorrect),
+            explanation: explanation || '暂无解析。',
+            tags: normalizedTags
+          });
+          current = freshQuestion();
+          mode = 'question';
+        }
+
+        for (const line of lines) {
+          const cleanLine = stripMarkdown(line);
+          const optionMatch = line.match(checkboxOptionRegex);
+          const letterOptionMatch = cleanLine.match(letterOptionRegex);
+          const correctAnswerMatch = cleanLine.match(correctAnswerRegex);
+          const explanationMatch = cleanLine.match(explanationRegex);
+          const tagMatch = cleanLine.match(tagRegex);
+          const trapMatch = cleanLine.match(trapRegex);
+          const questionStartMatch = cleanLine.match(questionStartRegex);
+          const headingMatch = cleanLine.match(headingRegex);
+
+          if (/^#{1,6}\s*Final\s+Answer\s+Table/i.test(cleanLine)) {
+            commitCurrent();
+            break;
+          }
+
+          if (headingMatch && !questionStartMatch) {
+            const headingTags = collectTags(headingMatch[1]).slice(0, 2);
+            if (headingTags.length) {
+              contextTags = headingTags;
+              if (!questions.length && !current.questionLines.length && !current.options.length) {
+                documentTags = uniqueTags([...documentTags, ...headingTags]).slice(0, 3);
+              }
+            }
+            continue;
+          }
+
+          if (questionStartMatch) {
+            commitCurrent();
+            current = freshQuestion();
+            current.questionNumber = questionStartMatch[1];
+            mode = 'question';
+            continue;
+          }
+
+          if (/^-{3,}$/.test(cleanLine)) {
+            commitCurrent();
+            continue;
+          }
+
+          if (optionMatch) {
+            mode = 'options';
+            current.options.push({
+              text: optionMatch[2].trim(),
+              isCorrect: optionMatch[1].toLowerCase() === 'x'
+            });
+            continue;
+          }
+
+          if (letterOptionMatch) {
+            mode = 'options';
+            current.options.push({
+              text: letterOptionMatch[2].trim(),
+              isCorrect: false
+            });
+            continue;
+          }
+
+          if (correctAnswerMatch) {
+            current.correctLetter = correctAnswerMatch[1].toUpperCase();
+            mode = 'answer';
+            continue;
+          }
+
+          if (explanationMatch) {
+            mode = 'explanation';
+            current.explanationLines.push(explanationMatch[1].trim());
+            continue;
+          }
+
+          if (tagMatch) {
+            current.tags = collectTags(tagMatch[1]);
+            commitCurrent();
+            continue;
+          }
+
+          if (trapMatch) {
+            current.tags = collectTags(trapMatch[1]);
+            commitCurrent();
+            continue;
+          }
+
+          if (!line.trim() && mode === 'question' && !current.questionLines.length) {
+            continue;
+          }
+
+          if (mode === 'explanation') {
+            if (cleanLine) current.explanationLines.push(cleanLine);
+          } else if (mode === 'options') {
+            if (cleanLine) current.questionLines.push(cleanLine);
+          } else if (mode === 'answer') {
+            continue;
+          } else {
+            if (cleanLine) current.questionLines.push(cleanLine);
+          }
+        }
+
+        commitCurrent();
+        return questions;
+      }
+
+      function createEmptyRecords() {
+        return {
+          totalAnswered: 0,
+          totalCorrect: 0,
+          questionStats: {},
+          wrongQuestionIds: [],
+          tagStats: {}
+        };
+      }
+
+      function normalizeRecords(value) {
+        return {
+          totalAnswered: Number(value?.totalAnswered) || 0,
+          totalCorrect: Number(value?.totalCorrect) || 0,
+          questionStats: value?.questionStats && typeof value.questionStats === 'object' ? value.questionStats : {},
+          wrongQuestionIds: Array.isArray(value?.wrongQuestionIds) ? value.wrongQuestionIds : [],
+          tagStats: value?.tagStats && typeof value.tagStats === 'object' ? value.tagStats : {}
+        };
+      }
+
+      function getBankId(questions) {
+        return hashString(questions.map((question) => question.id).join('|'));
+      }
+
+      function useBankRecords(bankId) {
+        if (!state.storage.banks[bankId]) {
+          state.storage.banks[bankId] = createEmptyRecords();
+        }
+        state.records = state.storage.banks[bankId];
+      }
+
+      function syncSelectedOption() {
+        const question = getCurrentQuestion();
+        const savedAnswer = question ? state.sessionAnswers[question.id] : null;
+        state.selectedOption = savedAnswer ? savedAnswer.selectedIndex : null;
+      }
+
+      function loadRecords() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+          if (saved.banks && typeof saved.banks === 'object') {
+            state.storage = { banks: {} };
+            for (const [bankId, records] of Object.entries(saved.banks)) {
+              state.storage.banks[bankId] = normalizeRecords(records);
+            }
+          } else {
+            state.storage = { banks: { legacy: normalizeRecords(saved) } };
+          }
+        } catch (error) {
+          state.storage = { banks: {} };
+        }
+      }
+
+      function saveRecords() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state.storage));
+        } catch (error) {
+          if (!state.storageWarningShown) {
+            state.storageWarningShown = true;
+            showToast('当前浏览器限制本地存储，本次交互仍可继续。');
+          }
+        }
+      }
+
+      function setQuestions(questions, sourceName) {
+        state.questions = questions;
+        state.bankId = getBankId(questions);
+        if (!state.storage.banks[state.bankId] && state.storage.banks.legacy && !sourceName.includes('内置示例')) {
+          state.storage.banks[state.bankId] = normalizeRecords(state.storage.banks.legacy);
+          delete state.storage.banks.legacy;
+        }
+        useBankRecords(state.bankId);
+        state.scoreInSession = 0;
+        state.sessionAnswers = {};
+        state.currentIndex = 0;
+        state.mode = 'all';
+        state.queue = [...questions];
+        syncSelectedOption();
+        els.fileStatus.textContent = `已导入 ${questions.length} 道题：${sourceName}`;
+        render();
+      }
+
+      function startMode(mode) {
+        if (!state.questions.length) {
+          showToast('请先导入题库文件。');
+          return;
+        }
+
+        state.mode = mode;
+        state.currentIndex = 0;
+        state.scoreInSession = 0;
+        state.sessionAnswers = {};
+        state.queue = mode === 'wrong' ? getCurrentWrongQuestions() : [...state.questions];
+
+        if (!state.queue.length) {
+          showToast('错题库为空，先完成一些练习吧。');
+          state.mode = 'all';
+          state.queue = [...state.questions];
+        }
+
+        syncSelectedOption();
+        render();
+      }
+
+      function getCurrentQuestion() {
+        return state.queue[state.currentIndex] || null;
+      }
+
+      function getCurrentWrongQuestions() {
+        const currentQuestionIds = new Set(state.questions.map((question) => question.id));
+        return state.records.wrongQuestionIds
+          .filter((id) => currentQuestionIds.has(id))
+          .map((id) => state.questions.find((question) => question.id === id))
+          .filter(Boolean);
+      }
+
+      function chooseOption(optionIndex) {
+        const question = getCurrentQuestion();
+        if (!question || state.sessionAnswers[question.id]) return;
+
+        const isCorrect = optionIndex === question.correctIndex;
+        state.selectedOption = optionIndex;
+        state.sessionAnswers[question.id] = { selectedIndex: optionIndex, isCorrect };
+        state.records.totalAnswered += 1;
+        if (isCorrect) {
+          state.records.totalCorrect += 1;
+          state.scoreInSession += 1;
+        }
+
+        const savedQuestionStats = state.records.questionStats[question.id];
+        const questionStats = savedQuestionStats && typeof savedQuestionStats === 'object'
+          ? savedQuestionStats
+          : { answered: 0, correct: 0 };
+        questionStats.answered += 1;
+        if (isCorrect) questionStats.correct += 1;
+        state.records.questionStats[question.id] = questionStats;
+
+        for (const tag of question.tags) {
+          const savedTagStats = state.records.tagStats[tag];
+          const tagStats = savedTagStats && typeof savedTagStats === 'object'
+            ? savedTagStats
+            : { answered: 0, correct: 0 };
+          tagStats.answered += 1;
+          if (isCorrect) tagStats.correct += 1;
+          state.records.tagStats[tag] = tagStats;
+        }
+
+        if (isCorrect) {
+          state.records.wrongQuestionIds = state.records.wrongQuestionIds.filter((id) => id !== question.id);
+        } else if (!state.records.wrongQuestionIds.includes(question.id)) {
+          state.records.wrongQuestionIds.push(question.id);
+        }
+
+        saveRecords();
+        render();
+      }
+
+      function goNext() {
+        if (state.currentIndex < state.queue.length - 1) {
+          state.currentIndex += 1;
+          syncSelectedOption();
+          render();
+          return;
+        }
+        showToast('本轮已经完成。');
+      }
+
+      function goPrev() {
+        if (state.currentIndex > 0) {
+          state.currentIndex -= 1;
+          syncSelectedOption();
+          render();
+        }
+      }
+
+      function resetRecords() {
+        if (!confirm('确认清空错题本、答题历史和知识点统计吗？')) return;
+        state.records = createEmptyRecords();
+        state.storage.banks[state.bankId] = state.records;
+        state.sessionAnswers = {};
+        state.scoreInSession = 0;
+        syncSelectedOption();
+        saveRecords();
+        render();
+      }
+
+      function render() {
+        renderQuiz();
+        renderDashboard();
+        if (window.lucide) lucide.createIcons();
+      }
+
+      function renderQuiz() {
+        const hasQuestions = state.queue.length > 0;
+        const question = getCurrentQuestion();
+        els.emptyState.classList.toggle('hidden', hasQuestions);
+        els.quizView.classList.toggle('hidden', !hasQuestions);
+
+        els.modeLabel.textContent = hasQuestions
+          ? state.mode === 'wrong' ? '错题重练模式' : '全部题目模式'
+          : '等待导入题库';
+        els.quizTitle.textContent = hasQuestions ? `第 ${state.currentIndex + 1} 题` : '题目会显示在这里';
+        els.progressText.textContent = hasQuestions ? `${state.currentIndex + 1} / ${state.queue.length}` : '0 / 0';
+        els.scoreText.textContent = `正确 ${state.scoreInSession}`;
+        els.progressBar.style.width = hasQuestions ? `${((state.currentIndex + 1) / state.queue.length) * 100}%` : '0%';
+        els.prevBtn.disabled = !hasQuestions || state.currentIndex === 0;
+        els.nextBtn.disabled = !hasQuestions || state.selectedOption === null;
+        els.nextBtn.innerHTML = state.currentIndex === state.queue.length - 1
+          ? '完成本轮 <i data-lucide="check" class="h-4 w-4"></i>'
+          : '下一题 <i data-lucide="arrow-right" class="h-4 w-4"></i>';
+
+        if (!question) return;
+
+        els.questionText.textContent = question.question;
+        els.optionsList.innerHTML = question.options.map((option, index) => {
+          const answered = state.selectedOption !== null;
+          const isSelected = state.selectedOption === index;
+          const isCorrect = question.correctIndex === index;
+          let classes = 'border-zinc-700 bg-zinc-950/50 text-zinc-100 hover:border-teal-300/70 hover:bg-zinc-900';
+          let icon = 'circle';
+
+          if (answered && isCorrect) {
+            classes = 'border-teal-300/80 bg-teal-400/20 text-teal-50 feedback-pop';
+            icon = 'check-circle-2';
+          } else if (answered && isSelected && !isCorrect) {
+            classes = 'border-rose-300/80 bg-rose-400/20 text-rose-50 feedback-pop';
+            icon = 'x-circle';
+          } else if (answered) {
+            classes = 'border-zinc-800 bg-zinc-950/30 text-zinc-400';
+          }
+
+          return `
+            <button class="option-card flex w-full items-start gap-3 rounded-lg border px-4 py-3 text-left transition duration-200 ${classes}" data-option-index="${index}" ${answered ? 'disabled' : ''}>
+              <span class="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md bg-zinc-950/50 ring-1 ring-white/10">
+                <i data-lucide="${icon}" class="h-4 w-4"></i>
+              </span>
+              <span class="min-w-0 flex-1 leading-6">${escapeHtml(option.text)}</span>
+            </button>
+          `;
+        }).join('');
+
+        const answered = state.selectedOption !== null;
+        els.answerPanel.classList.toggle('hidden', !answered);
+        if (answered) {
+          const isCorrect = state.selectedOption === question.correctIndex;
+          els.answerPanel.classList.add('slide-in');
+          els.resultText.textContent = isCorrect ? '回答正确' : '回答错误，已加入错题本';
+          els.resultIcon.setAttribute('data-lucide', isCorrect ? 'badge-check' : 'badge-x');
+          els.resultIcon.className = `h-5 w-5 ${isCorrect ? 'text-teal-300' : 'text-rose-300'}`;
+          els.explanationText.textContent = question.explanation;
+          els.tagList.innerHTML = question.tags.map((tag) => `<span class="rounded-md border border-amber-300/25 bg-amber-300/10 px-2.5 py-1 text-xs font-medium text-amber-100">${escapeHtml(tag)}</span>`).join('');
+        } else {
+          els.answerPanel.classList.remove('slide-in');
+        }
+      }
+
+      function renderDashboard() {
+        const accuracy = state.records.totalAnswered
+          ? (state.records.totalCorrect / state.records.totalAnswered) * 100
+          : 0;
+        els.totalAnswered.textContent = state.records.totalAnswered;
+        els.accuracyRate.textContent = `${accuracy.toFixed(1).replace('.0', '')}%`;
+        els.totalQuestions.textContent = state.questions.length;
+        const wrongQuestions = getCurrentWrongQuestions();
+        els.wrongCount.textContent = wrongQuestions.length;
+
+        const tagRows = Object.entries(state.records.tagStats)
+          .filter(([, stats]) => stats.answered > 0)
+          .sort((a, b) => (a[1].correct / a[1].answered) - (b[1].correct / b[1].answered));
+
+        if (!tagRows.length) {
+          els.tagStatsBody.innerHTML = '<tr><td class="px-3 py-4 text-zinc-400" colspan="3">完成答题后自动生成知识点表现。</td></tr>';
+          els.weakSpot.textContent = '暂无统计数据';
+        } else {
+          const weakest = tagRows[0];
+          const weakestRate = (weakest[1].correct / weakest[1].answered) * 100;
+          els.weakSpot.textContent = `当前薄弱环节：${weakest[0]}，正确率 ${weakestRate.toFixed(1)}%`;
+          els.tagStatsBody.innerHTML = tagRows.map(([tag, stats], index) => {
+            const rate = (stats.correct / stats.answered) * 100;
+            const rowClass = index === 0 ? 'bg-amber-300/10 text-amber-50' : 'text-zinc-200';
+            return `
+              <tr class="${rowClass}">
+                <td class="px-3 py-3 font-medium">${escapeHtml(tag.replace(/^#/, ''))}</td>
+                <td class="px-3 py-3">${stats.correct}/${stats.answered}</td>
+                <td class="px-3 py-3">${rate.toFixed(1)}%</td>
+              </tr>
+            `;
+          }).join('');
+        }
+
+        els.wrongList.innerHTML = wrongQuestions.length
+          ? wrongQuestions.map((question) => `
+              <button class="rounded-md border border-rose-300/20 bg-rose-300/10 px-3 py-2 text-left text-sm leading-5 text-rose-50 transition hover:bg-rose-300/20" data-wrong-id="${question.id}">
+                ${escapeHtml(question.question)}
+              </button>
+            `).join('')
+          : '<p class="rounded-md border border-zinc-700 bg-zinc-950/40 px-3 py-3 text-sm text-zinc-400">暂无错题。</p>';
+
+        els.wrongList.querySelectorAll('[data-wrong-id]').forEach((button) => {
+          button.addEventListener('click', () => {
+            startMode('wrong');
+            const foundIndex = state.queue.findIndex((question) => question.id === button.dataset.wrongId);
+            if (foundIndex >= 0) {
+              state.currentIndex = foundIndex;
+              state.selectedOption = null;
+              render();
+            }
+          });
+        });
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;')
+          .replaceAll("'", '&#039;');
+      }
+
+      function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-md border border-teal-300/30 bg-zinc-950 px-4 py-2 text-sm text-zinc-100 shadow-glow transition';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+          toast.style.opacity = '0';
+          toast.style.transform = 'translate(-50%, 10px)';
+        }, 1800);
+        setTimeout(() => toast.remove(), 2300);
+      }
+
+      function importQuestionsFromText(rawText, sourceName) {
+        const questions = parseQuizText(String(rawText || ''));
+        if (!questions.length) {
+          showToast('未识别到有效题目，请检查格式。');
+          return false;
+        }
+        setQuestions(questions, sourceName);
+        return true;
+      }
+
+      function handleFile(file) {
+        if (!file) return;
+        const validExtension = /\.(md|txt)$/i.test(file.name);
+        if (!validExtension) {
+          showToast('请导入 .md 或 .txt 文件。');
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => {
+          importQuestionsFromText(reader.result, file.name);
+        };
+        reader.onerror = () => showToast('文件读取失败，请重试。');
+        reader.readAsText(file, 'utf-8');
+      }
+
+      function handleTextImport() {
+        const rawText = els.textInput.value.trim();
+        if (!rawText) {
+          showToast('请先粘贴题库文本。');
+          return;
+        }
+        const imported = importQuestionsFromText(rawText, '粘贴文本');
+        if (imported) {
+          const lineCount = rawText.split(/\n/).filter((line) => line.trim()).length;
+          els.textInputMeta.textContent = `已从粘贴文本导入，原始文本 ${lineCount} 行。`;
+        }
+      }
+
+      els.chooseFileBtn.addEventListener('click', () => els.fileInput.click());
+      els.fileInput.addEventListener('change', (event) => handleFile(event.target.files[0]));
+      els.parseTextBtn.addEventListener('click', handleTextImport);
+      els.clearTextBtn.addEventListener('click', () => {
+        els.textInput.value = '';
+        els.textInputMeta.textContent = '支持 Markdown 或纯文本，格式可为 [x] 选项或 A/B/C/D + Correct answer。';
+        els.textInput.focus();
+      });
+      els.textInput.addEventListener('keydown', (event) => {
+        if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+          event.preventDefault();
+          handleTextImport();
+        }
+      });
+      els.practiceAllBtn.addEventListener('click', () => startMode('all'));
+      els.practiceWrongBtn.addEventListener('click', () => startMode('wrong'));
+      els.resetDataBtn.addEventListener('click', resetRecords);
+      els.nextBtn.addEventListener('click', goNext);
+      els.prevBtn.addEventListener('click', goPrev);
+      els.optionsList.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-option-index]');
+        if (!button || button.disabled) return;
+        chooseOption(Number(button.dataset.optionIndex));
+      });
+
+      ['dragenter', 'dragover'].forEach((eventName) => {
+        els.dropZone.addEventListener(eventName, (event) => {
+          event.preventDefault();
+          els.dropZone.classList.add('border-teal-200', 'bg-teal-300/10');
+        });
+      });
+
+      ['dragleave', 'drop'].forEach((eventName) => {
+        els.dropZone.addEventListener(eventName, (event) => {
+          event.preventDefault();
+          els.dropZone.classList.remove('border-teal-200', 'bg-teal-300/10');
+        });
+      });
+
+      els.dropZone.addEventListener('drop', (event) => {
+        handleFile(event.dataTransfer.files[0]);
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (!getCurrentQuestion()) return;
+        const optionNumber = Number(event.key);
+        if (optionNumber >= 1 && optionNumber <= 9) chooseOption(optionNumber - 1);
+        if (event.key === 'Enter' && state.selectedOption !== null) goNext();
+      });
+
+      window.parseQuizText = parseQuizText;
+
+      loadRecords();
+      const demoQuestions = parseQuizText(sampleText);
+      setQuestions(demoQuestions, '内置示例，可拖入文件替换');
+    </script>
   </body>
 </html>
